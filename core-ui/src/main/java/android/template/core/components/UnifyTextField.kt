@@ -27,6 +27,9 @@ fun UnifyTextField(
     initialValue: String,
     maxLines: Int = 1,
     imeAction: ImeAction = ImeAction.Next,
+    readOnly: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     onValueChange: (String) -> Unit
 ) {
     TextField(
@@ -35,6 +38,9 @@ fun UnifyTextField(
         onValueChange = onValueChange,
         maxLines = maxLines,
         keyboardOptions = KeyboardOptions(imeAction = imeAction),
+        readOnly = readOnly,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
         modifier = modifier.fillMaxWidth()
     )
 }

@@ -17,20 +17,34 @@
 package android.template.feature.weighbridge.create.ui
 
 import android.annotation.SuppressLint
+import android.template.core.components.UnifyDatePickerDialog
 import android.template.core.components.UnifyTextField
+import android.template.core.components.UnifyTimePickerDialog
 import android.template.core.ui.MyApplicationTheme
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -93,6 +107,7 @@ fun NewWeighbridgeScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun NewWeighbridgeContent(
     uiState: NewWeighbridgeUiState,
@@ -100,11 +115,54 @@ internal fun NewWeighbridgeContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        val datePickerState = rememberDatePickerState(
+            uiState.date,
+            initialDisplayMode = DisplayMode.Picker
+        )
+        val timePickerState = rememberTimePickerState(
+            initialHour = uiState.hours,
+            initialMinute = uiState.minutes
+        )
+        var showDatePicker by remember { mutableStateOf(false) }
+        var showTimePicker by remember { mutableStateOf(false) }
+
+        UnifyDatePickerDialog(
+            show = showDatePicker,
+            state = datePickerState,
+            onDismissRequest = {
+                showDatePicker = false
+                showTimePicker = true
+                onEvent(
+                    NewWeighbridgeUiEvent.OnDateTimeChanged(
+                        datePickerState.selectedDateMillis ?: 0
+                    )
+                )
+            }
+        )
+
+        UnifyTimePickerDialog(
+            show = showTimePicker,
+            state = timePickerState,
+            onDismissRequest = {
+                showTimePicker = false
+            }
+        )
+
         UnifyTextField(
             label = "Date Time",
-            initialValue = uiState.dateTime.toString(),
-            onValueChange = { onEvent(NewWeighbridgeUiEvent.OnDateTimeChanged(it)) },
-            modifier = Modifier.fillMaxWidth()
+            initialValue = uiState.dateTimeFormatted,
+            onValueChange = { },
+            readOnly = true,
+            trailingIcon = {
+                IconButton(onClick = { showDatePicker = true }) {
+                    Icon(imageVector = Icons.Outlined.Edit, contentDescription = "edit_datetime")
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    showDatePicker = true
+                }
         )
 
         UnifyTextField(
@@ -152,7 +210,10 @@ internal fun NewWeighbridgeContent(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onEvent(NewWeighbridgeUiEvent.OnSaveClicked) }) {
+            onClick = {
+                //onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
+                showDatePicker = true
+            }) {
             Text("Save")
         }
     }

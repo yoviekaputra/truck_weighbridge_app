@@ -39,7 +39,7 @@ class NewWeighbridgeViewModel @Inject constructor(
     fun onEvent(event: NewWeighbridgeUiEvent) {
         when (event) {
             is NewWeighbridgeUiEvent.OnDateTimeChanged -> _uiState.update {
-                it.copy(dateTime = event.value.toLongOrNull() ?: 0)
+                it.copy(date = event.value)
             }
             is NewWeighbridgeUiEvent.OnDriverNameChanged -> _uiState.update {
                 it.copy(driverName = event.value)

@@ -11,7 +11,7 @@ sealed class NewWeighbridgeUiEvent {
 
     data class OnOutboundWeightChanged(val value: String) : NewWeighbridgeUiEvent()
 
-    data class OnDateTimeChanged(val value: String) : NewWeighbridgeUiEvent()
+    data class OnDateTimeChanged(val value: Long) : NewWeighbridgeUiEvent()
 
     data class OnDriverNameChanged(val value: String) : NewWeighbridgeUiEvent()
 
