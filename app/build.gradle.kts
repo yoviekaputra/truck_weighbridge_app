@@ -82,6 +82,7 @@ android {
 dependencies {
     implementation(project(":core-ui"))
     implementation(project(":feature-weighbridge"))
+    implementation(project(":feature-weighbridge-create"))
 
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)

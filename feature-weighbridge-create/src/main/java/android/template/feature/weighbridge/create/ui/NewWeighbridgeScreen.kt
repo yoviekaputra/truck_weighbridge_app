@@ -16,77 +16,144 @@
 
 package android.template.feature.weighbridge.create.ui
 
+import android.annotation.SuppressLint
+import android.template.core.components.UnifyTextField
+import android.template.core.ui.MyApplicationTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle.State.STARTED
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import android.template.feature.weighbridge.create.ui.MyModelUiState.Success
-import android.template.core.ui.MyApplicationTheme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+
+@SuppressLint("StateFlowValueCalledInComposition")
+@Composable
+fun <T> StateFlow<T>.collectAsStateWithLifecycle(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    context: CoroutineContext = EmptyCoroutineContext
+): State<T> = collectAsStateWithLifecycle(
+    initialValue = this.value,
+    lifecycle = lifecycleOwner.lifecycle,
+    minActiveState = minActiveState,
+    context = context
+)
 
 @Composable
-fun NewWeighbridgeScreen(modifier: Modifier = Modifier, viewModel: MyModelViewModel = hiltViewModel()) {
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val items by produceState<MyModelUiState>(
-        initialValue = MyModelUiState.Loading,
-        key1 = lifecycle,
-        key2 = viewModel
-    ) {
-        lifecycle.repeatOnLifecycle(state = STARTED) {
-            viewModel.uiState.collect { value = it }
+fun <T> Flow<T>.collectAsStateWithLifecycle(
+    initialValue: T,
+    lifecycle: Lifecycle,
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    context: CoroutineContext = EmptyCoroutineContext
+): State<T> {
+    return produceState(initialValue, this, lifecycle, minActiveState, context) {
+        lifecycle.repeatOnLifecycle(minActiveState) {
+            if (context == EmptyCoroutineContext) {
+                this@collectAsStateWithLifecycle.collect { this@produceState.value = it }
+            } else withContext(context) {
+                this@collectAsStateWithLifecycle.collect { this@produceState.value = it }
+            }
         }
-    }
-    if (items is Success) {
-        NewWeighbridgeContent(
-            items = (items as Success).data,
-            onSave = { name -> viewModel.addMyModel(name) },
-            modifier = modifier
-        )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NewWeighbridgeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: NewWeighbridgeViewModel = hiltViewModel()
+) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
+    NewWeighbridgeContent(
+        uiState = uiState.value,
+        onEvent = viewModel::onEvent,
+        modifier = Modifier.padding(16.dp)
+    )
+}
+
 @Composable
 internal fun NewWeighbridgeContent(
-    items: List<String>,
-    onSave: (name: String) -> Unit,
+    uiState: NewWeighbridgeUiState,
+    onEvent: (NewWeighbridgeUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier) {
-        var nameMyModel by remember { mutableStateOf("Compose") }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            TextField(
-                value = nameMyModel,
-                onValueChange = { nameMyModel = it }
-            )
+    Column(modifier.wrapContentSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        UnifyTextField(
+            label = "Date Time",
+            initialValue = uiState.dateTime.toString(),
+            onValueChange = { onEvent(NewWeighbridgeUiEvent.OnDateTimeChanged(it)) },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-            Button(modifier = Modifier.width(96.dp), onClick = { onSave(nameMyModel) }) {
-                Text("Save")
+        UnifyTextField(
+            label = "Driver Name",
+            initialValue = uiState.driverName,
+            onValueChange = { onEvent(NewWeighbridgeUiEvent.OnDriverNameChanged(it)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        UnifyTextField(
+            label = "Licence Number",
+            initialValue = uiState.licenceNumber,
+            onValueChange = { onEvent(NewWeighbridgeUiEvent.OnLicenceNumberChanged(it)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(text = "Weight")
+
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                UnifyTextField(
+                    label = "Inbound",
+                    initialValue = uiState.inboundWeight.toString(),
+                    onValueChange = { onEvent(NewWeighbridgeUiEvent.OnInboundWeightChanged(it)) },
+                    modifier = Modifier.weight(1f)
+                )
+
+                UnifyTextField(
+                    label = "Outbound",
+                    initialValue = uiState.outboundWeight.toString(),
+                    onValueChange = { onEvent(NewWeighbridgeUiEvent.OnOutboundWeightChanged(it)) },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
-        items.forEach {
-            Text("Saved item: $it")
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Net Weight", fontWeight = FontWeight.Bold)
+            Text(text = uiState.netWeight, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        }
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onEvent(NewWeighbridgeUiEvent.OnSaveClicked) }) {
+            Text("Save")
         }
     }
 }
@@ -97,14 +164,9 @@ internal fun NewWeighbridgeContent(
 @Composable
 private fun DefaultPreview() {
     MyApplicationTheme {
-        NewWeighbridgeContent(listOf("Compose", "Room", "Kotlin"), onSave = {})
-    }
-}
-
-@Preview(showBackground = true, widthDp = 480)
-@Composable
-private fun PortraitPreview() {
-    MyApplicationTheme {
-        NewWeighbridgeContent(listOf("Compose", "Room", "Kotlin"), onSave = {})
+        NewWeighbridgeContent(
+            uiState = NewWeighbridgeUiState(),
+            onEvent = { _ -> }
+        )
     }
 }

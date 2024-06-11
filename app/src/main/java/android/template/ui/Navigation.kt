@@ -16,6 +16,7 @@
 
 package android.template.ui
 
+import android.template.feature.weighbridge.create.ui.NewWeighbridgeScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,7 +31,7 @@ fun MainNavigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "main") {
-        composable("main") { MyModelScreen(modifier = Modifier.padding(16.dp)) }
+        composable("main") { NewWeighbridgeScreen(modifier = Modifier.padding(16.dp)) }
         // TODO: Add more destinations
     }
 }
