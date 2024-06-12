@@ -16,6 +16,10 @@
 
 package android.template.data
 
+import android.template.core.data.DefaultMyModelRepository
+import android.template.core.data.models.WeighbridgeData
+import android.template.core.database.MyModelDao
+import android.template.core.database.WeighbridgeEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -23,10 +27,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import android.template.core.data.DefaultMyModelRepository
-import android.template.core.data.models.WeighbridgeData
-import android.template.core.database.WeighbridgeEntity
-import android.template.core.database.MyModelDao
 
 /**
  * Unit tests for [DefaultMyModelRepository].
@@ -38,11 +38,11 @@ class DefaultWeighbridgeEntityRepositoryTest {
     fun myModels_newItemSaved_itemIsReturned() = runTest {
         val repository = DefaultMyModelRepository(FakeMyModelDao())
         val data = WeighbridgeData(
-            datetime = 0,
-            licenceNumber = "B123",
-            driverName = "",
+            datetime = 1718196095,
+            licenceNumber = "B123SU",
+            driverName = "Yovi",
             inboundWeight = 0.0,
-            outboundWeight = 0.0
+            outboundWeight = 20.0
         )
         repository.add(data)
 
