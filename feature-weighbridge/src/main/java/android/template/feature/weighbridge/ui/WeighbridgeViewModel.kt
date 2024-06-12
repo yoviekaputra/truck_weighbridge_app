@@ -21,6 +21,7 @@ import android.template.core.data.models.WeighbridgeData
 import android.template.feature.weighbridge.ui.MyModelUiState.Error
 import android.template.feature.weighbridge.ui.MyModelUiState.Loading
 import android.template.feature.weighbridge.ui.MyModelUiState.Success
+import android.template.feature.weighbridge.ui.WeighbridgeUiModel.Companion.asUiModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,14 +37,25 @@ class WeighbridgeViewModel @Inject constructor(
     private val myModelRepository: MyModelRepository
 ) : ViewModel() {
 
-    val uiState: StateFlow<MyModelUiState> = myModelRepository
-        .myModels.map<List<WeighbridgeData>, MyModelUiState> { Success(data = it) }
+    val uiState: StateFlow<MyModelUiState> = myModelRepository.myModels
+        .map<List<WeighbridgeData>, MyModelUiState> { Success(data = it.asUiModel) }
         .catch { emit(Error(it)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
+
+    fun onEvent(event: WeighbridgeUiEvent) {
+
+    }
 }
 
 sealed interface MyModelUiState {
     object Loading : MyModelUiState
     data class Error(val throwable: Throwable) : MyModelUiState
-    data class Success(val data: List<WeighbridgeData>) : MyModelUiState
+    data class Success(val data: List<WeighbridgeUiModel>) : MyModelUiState
+}
+
+sealed interface WeighbridgeUiEvent {
+
+    data class OnDeleteClick(val data: WeighbridgeUiModel) : WeighbridgeUiEvent
+
+    data class OnEditClick(val data: WeighbridgeUiModel) : WeighbridgeUiEvent
 }
