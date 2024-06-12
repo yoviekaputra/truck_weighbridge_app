@@ -16,6 +16,8 @@
 
 package android.template.feature.weighbridge.ui
 
+import android.template.core.ui.MyApplicationTheme
+import android.template.feature.weighbridge.ui.MyModelUiState.Success
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,8 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.repeatOnLifecycle
-import android.template.feature.weighbridge.ui.MyModelUiState.Success
-import android.template.core.ui.MyApplicationTheme
 
 @Composable
 fun MyModelScreen(modifier: Modifier = Modifier, viewModel: MyModelViewModel = hiltViewModel()) {
@@ -55,11 +55,11 @@ fun MyModelScreen(modifier: Modifier = Modifier, viewModel: MyModelViewModel = h
         }
     }
     if (items is Success) {
-        MyModelScreen(
+        /*MyModelScreen(
             items = (items as Success).data,
             onSave = { name -> viewModel.addMyModel(name) },
             modifier = modifier
-        )
+        )*/
     }
 }
 
@@ -73,7 +73,9 @@ internal fun MyModelScreen(
     Column(modifier) {
         var nameMyModel by remember { mutableStateOf("Compose") }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             TextField(
