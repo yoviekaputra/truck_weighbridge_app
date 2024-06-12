@@ -16,10 +16,29 @@
 
 package android.template.core.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.RenameTable
 import androidx.room.RoomDatabase
+import androidx.room.migration.AutoMigrationSpec
 
-@Database(entities = [MyModel::class], version = 1)
+@Database(
+    entities = [
+        WeighbridgeEntity::class
+    ],
+    version = 2,
+    autoMigrations = [
+        AutoMigration(
+            from = 1,
+            to = 2,
+            spec = AppDatabase.RenameTableWeighbridge::class
+        )
+    ]
+)
 abstract class AppDatabase : RoomDatabase() {
+
+    @RenameTable(fromTableName = "mymodel", toTableName = "weighbridge")
+    class RenameTableWeighbridge : AutoMigrationSpec
+
     abstract fun myModelDao(): MyModelDao
 }

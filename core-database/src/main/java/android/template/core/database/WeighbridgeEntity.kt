@@ -23,9 +23,15 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
-@Entity
-data class MyModel(
-    val name: String
+@Entity(
+    tableName = "weighbridge"
+)
+data class WeighbridgeEntity(
+    val datetime: Long,
+    val licenceNumber: String,
+    val driverName: String,
+    val inboundWeight: Double,
+    val outboundWeight: Double
 ) {
     @PrimaryKey(autoGenerate = true)
     var uid: Int = 0
@@ -33,9 +39,9 @@ data class MyModel(
 
 @Dao
 interface MyModelDao {
-    @Query("SELECT * FROM mymodel ORDER BY uid DESC LIMIT 10")
-    fun getMyModels(): Flow<List<MyModel>>
+    @Query("SELECT * FROM weighbridge ORDER BY uid DESC LIMIT 10")
+    fun getMyModels(): Flow<List<WeighbridgeEntity>>
 
     @Insert
-    suspend fun insertMyModel(item: MyModel)
+    suspend fun insertMyModel(item: WeighbridgeEntity)
 }

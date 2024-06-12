@@ -17,6 +17,7 @@
 package android.template.feature.weighbridge.create.ui
 
 import android.template.core.data.MyModelRepository
+import android.template.core.data.models.WeighbridgeData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,29 +42,40 @@ class NewWeighbridgeViewModel @Inject constructor(
             is NewWeighbridgeUiEvent.OnDateTimeChanged -> _uiState.update {
                 it.copy(date = event.value)
             }
+
             is NewWeighbridgeUiEvent.OnDriverNameChanged -> _uiState.update {
                 it.copy(driverName = event.value)
             }
+
             is NewWeighbridgeUiEvent.OnLicenceNumberChanged -> _uiState.update {
                 it.copy(licenceNumber = event.value)
             }
+
             is NewWeighbridgeUiEvent.OnInboundWeightChanged -> _uiState.update {
                 it.copy(inboundWeight = event.value.toDoubleOrNull() ?: 0.0)
             }
+
             is NewWeighbridgeUiEvent.OnOutboundWeightChanged -> _uiState.update {
                 it.copy(outboundWeight = event.value.toDoubleOrNull() ?: 0.0)
             }
-            is NewWeighbridgeUiEvent.OnSaveClicked -> {
 
+            is NewWeighbridgeUiEvent.OnSaveClicked -> {
+                save()
             }
         }
 
     }
 
-    fun addMyModel(name: String) {
-        viewModelScope.launch {
-            myModelRepository.add(name)
-        }
+    private fun save() = viewModelScope.launch {
+        val state = _uiState.value
+        val newData = WeighbridgeData(
+            datetime = state.date,
+            driverName = state.driverName,
+            licenceNumber = state.licenceNumber,
+            inboundWeight = state.inboundWeight,
+            outboundWeight = state.outboundWeight
+        )
+        myModelRepository.add(newData)
     }
 }
 

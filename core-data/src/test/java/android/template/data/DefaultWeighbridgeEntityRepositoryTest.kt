@@ -24,20 +24,27 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import android.template.core.data.DefaultMyModelRepository
-import android.template.core.database.MyModel
+import android.template.core.data.models.WeighbridgeData
+import android.template.core.database.WeighbridgeEntity
 import android.template.core.database.MyModelDao
 
 /**
  * Unit tests for [DefaultMyModelRepository].
  */
 @OptIn(ExperimentalCoroutinesApi::class) // TODO: Remove when stable
-class DefaultMyModelRepositoryTest {
+class DefaultWeighbridgeEntityRepositoryTest {
 
     @Test
     fun myModels_newItemSaved_itemIsReturned() = runTest {
         val repository = DefaultMyModelRepository(FakeMyModelDao())
-
-        repository.add("Repository")
+        val data = WeighbridgeData(
+            datetime = 0,
+            licenceNumber = "B123",
+            driverName = "",
+            inboundWeight = 0.0,
+            outboundWeight = 0.0
+        )
+        repository.add(data)
 
         assertEquals(repository.myModels.first().size, 1)
     }
@@ -46,13 +53,13 @@ class DefaultMyModelRepositoryTest {
 
 private class FakeMyModelDao : MyModelDao {
 
-    private val data = mutableListOf<MyModel>()
+    private val data = mutableListOf<WeighbridgeEntity>()
 
-    override fun getMyModels(): Flow<List<MyModel>> = flow {
+    override fun getMyModels(): Flow<List<WeighbridgeEntity>> = flow {
         emit(data)
     }
 
-    override suspend fun insertMyModel(item: MyModel) {
+    override suspend fun insertMyModel(item: WeighbridgeEntity) {
         data.add(0, item)
     }
 }

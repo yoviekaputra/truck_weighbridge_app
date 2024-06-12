@@ -16,26 +16,28 @@
 
 package android.template.core.data
 
+import android.template.core.data.models.WeighbridgeData
+import android.template.core.data.models.WeighbridgeData.Companion.asEntity
+import android.template.core.data.models.asData
+import android.template.core.database.MyModelDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import android.template.core.database.MyModel
-import android.template.core.database.MyModelDao
 import javax.inject.Inject
 
 interface MyModelRepository {
-    val myModels: Flow<List<String>>
+    val myModels: Flow<List<WeighbridgeData>>
 
-    suspend fun add(name: String)
+    suspend fun add(data: WeighbridgeData)
 }
 
 class DefaultMyModelRepository @Inject constructor(
     private val myModelDao: MyModelDao
 ) : MyModelRepository {
 
-    override val myModels: Flow<List<String>> =
-        myModelDao.getMyModels().map { items -> items.map { it.name } }
+    override val myModels: Flow<List<WeighbridgeData>> =
+        myModelDao.getMyModels().map { items -> items.map { it.asData } }
 
-    override suspend fun add(name: String) {
-        myModelDao.insertMyModel(MyModel(name = name))
+    override suspend fun add(data: WeighbridgeData) {
+        myModelDao.insertMyModel(data.asEntity)
     }
 }
