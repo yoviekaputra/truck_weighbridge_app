@@ -18,6 +18,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -32,6 +33,7 @@ android {
     }
 
     buildFeatures {
+        compose = true
         aidl = false
         buildConfig = false
         renderScript = false
@@ -52,5 +54,15 @@ android {
 }
 
 dependencies {
+    // Arch Components
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    // Compose
+    implementation(libs.androidx.compose.ui)
+
+    // Core Android dependencies
+    implementation(libs.androidx.core.ktx)
+
+    implementation(libs.kotlinx.coroutines.android)
 }

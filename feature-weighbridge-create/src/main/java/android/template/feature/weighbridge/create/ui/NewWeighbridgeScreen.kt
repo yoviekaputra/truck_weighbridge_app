@@ -16,12 +16,10 @@
 
 package android.template.feature.weighbridge.create.ui
 
-import android.annotation.SuppressLint
-import android.template.core.components.UnifyDatePickerDialog
+import android.template.core.components.UnifyDateTimePickerDialog
 import android.template.core.components.UnifyTextField
-import android.template.core.components.UnifyTimePickerDialog
+import android.template.core.extensions.collectAsStateWithLifecycle
 import android.template.core.ui.MyApplicationTheme
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,59 +37,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-
-@SuppressLint("StateFlowValueCalledInComposition")
-@Composable
-fun <T> StateFlow<T>.collectAsStateWithLifecycle(
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    context: CoroutineContext = EmptyCoroutineContext
-): State<T> = collectAsStateWithLifecycle(
-    initialValue = this.value,
-    lifecycle = lifecycleOwner.lifecycle,
-    minActiveState = minActiveState,
-    context = context
-)
-
-@Composable
-fun <T> Flow<T>.collectAsStateWithLifecycle(
-    initialValue: T,
-    lifecycle: Lifecycle,
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    context: CoroutineContext = EmptyCoroutineContext
-): State<T> {
-    return produceState(initialValue, this, lifecycle, minActiveState, context) {
-        lifecycle.repeatOnLifecycle(minActiveState) {
-            if (context == EmptyCoroutineContext) {
-                this@collectAsStateWithLifecycle.collect { this@produceState.value = it }
-            } else withContext(context) {
-                this@collectAsStateWithLifecycle.collect { this@produceState.value = it }
-            }
-        }
-    }
-}
 
 @Composable
 fun NewWeighbridgeScreen(
@@ -103,9 +57,10 @@ fun NewWeighbridgeScreen(
     NewWeighbridgeContent(
         uiState = uiState.value,
         onEvent = viewModel::onEvent,
-        modifier = Modifier.padding(16.dp)
+        modifier = modifier.padding(16.dp)
     )
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,6 +70,7 @@ internal fun NewWeighbridgeContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        val show = remember { mutableStateOf(false) }
         val datePickerState = rememberDatePickerState(
             uiState.date,
             initialDisplayMode = DisplayMode.Picker
@@ -123,28 +79,14 @@ internal fun NewWeighbridgeContent(
             initialHour = uiState.hours,
             initialMinute = uiState.minutes
         )
-        var showDatePicker by remember { mutableStateOf(false) }
-        var showTimePicker by remember { mutableStateOf(false) }
 
-        UnifyDatePickerDialog(
-            show = showDatePicker,
-            state = datePickerState,
-            onDismissRequest = {
-                showDatePicker = false
-                showTimePicker = true
-                onEvent(
-                    NewWeighbridgeUiEvent.OnDateTimeChanged(
-                        datePickerState.selectedDateMillis ?: 0
-                    )
-                )
-            }
-        )
-
-        UnifyTimePickerDialog(
-            show = showTimePicker,
-            state = timePickerState,
-            onDismissRequest = {
-                showTimePicker = false
+        UnifyDateTimePickerDialog(
+            datePickerState = datePickerState,
+            timePickerState = timePickerState,
+            show = show.value,
+            onClosed = {
+                show.value = false
+                onEvent(NewWeighbridgeUiEvent.OnDateTimeChanged(it.time))
             }
         )
 
@@ -154,15 +96,12 @@ internal fun NewWeighbridgeContent(
             onValueChange = { },
             readOnly = true,
             trailingIcon = {
-                IconButton(onClick = { showDatePicker = true }) {
+                IconButton(onClick = { show.value = true }) {
                     Icon(imageVector = Icons.Outlined.Edit, contentDescription = "edit_datetime")
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                    showDatePicker = true
-                }
         )
 
         UnifyTextField(
@@ -211,8 +150,7 @@ internal fun NewWeighbridgeContent(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                //onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
-                showDatePicker = true
+                onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
             }) {
             Text("Save")
         }
