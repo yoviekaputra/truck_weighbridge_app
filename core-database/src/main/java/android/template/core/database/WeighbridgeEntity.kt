@@ -16,6 +16,7 @@
 
 package android.template.core.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Entity
 import androidx.room.Insert
@@ -24,17 +25,30 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Entity(
-    tableName = "weighbridge"
+    tableName = WeighbridgeEntity.TABLE_NAME
 )
 data class WeighbridgeEntity(
+    @ColumnInfo(defaultValue = "0")
     val datetime: Long,
+
+    @ColumnInfo(defaultValue = "")
     val licenceNumber: String,
+
+    @ColumnInfo(defaultValue = "")
     val driverName: String,
+
+    @ColumnInfo(defaultValue = "0")
     val inboundWeight: Double,
+
+    @ColumnInfo(defaultValue = "0")
     val outboundWeight: Double
 ) {
     @PrimaryKey(autoGenerate = true)
     var uid: Int = 0
+
+    companion object {
+        const val TABLE_NAME = "weighbridge"
+    }
 }
 
 @Dao
