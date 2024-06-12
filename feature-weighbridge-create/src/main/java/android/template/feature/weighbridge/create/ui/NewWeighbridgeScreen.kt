@@ -48,13 +48,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun NewWeighbridgeScreen(
+fun NewWeighbridgeRoute(
     modifier: Modifier = Modifier,
     viewModel: NewWeighbridgeViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
-    NewWeighbridgeContent(
+    NewWeighbridgeScreen(
         uiState = uiState.value,
         onEvent = viewModel::onEvent,
         modifier = modifier.padding(16.dp)
@@ -64,7 +64,7 @@ fun NewWeighbridgeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun NewWeighbridgeContent(
+internal fun NewWeighbridgeScreen(
     uiState: NewWeighbridgeUiState,
     onEvent: (NewWeighbridgeUiEvent) -> Unit,
     modifier: Modifier = Modifier
@@ -163,7 +163,7 @@ internal fun NewWeighbridgeContent(
 @Composable
 private fun DefaultPreview() {
     MyApplicationTheme {
-        NewWeighbridgeContent(
+        NewWeighbridgeScreen(
             uiState = NewWeighbridgeUiState(),
             onEvent = { _ -> }
         )
