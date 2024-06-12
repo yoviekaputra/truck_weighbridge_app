@@ -16,11 +16,8 @@
 
 package android.template.ui
 
-import android.template.feature.weighbridge.create.ui.NewWeighbridgeRoute
-import androidx.compose.foundation.layout.padding
+import android.template.feature.weighbridge.ui.WeighbridgeRoute
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -30,7 +27,7 @@ fun MainNavigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "main") {
-        composable("main") { NewWeighbridgeRoute(modifier = Modifier.padding(16.dp)) }
+        composable("main") { WeighbridgeRoute() }
         // TODO: Add more destinations
     }
 }

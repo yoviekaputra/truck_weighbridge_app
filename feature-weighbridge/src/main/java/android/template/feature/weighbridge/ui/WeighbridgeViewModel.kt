@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class MyModelViewModel @Inject constructor(
+class WeighbridgeViewModel @Inject constructor(
     private val myModelRepository: MyModelRepository
 ) : ViewModel() {
 
