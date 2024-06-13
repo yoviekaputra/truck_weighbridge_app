@@ -100,7 +100,8 @@ private fun BottomSheetContent(
             contentColor = properties.contentColor(),
             tonalElevation = properties.tonalElevation,
             scrimColor = properties.scrimColor(),
-            dragHandle = properties.dragHandle
+            dragHandle = properties.dragHandle,
+            windowInsets = properties.windowInsets()
         ) {
             destination.content(backStackEntry)
         }

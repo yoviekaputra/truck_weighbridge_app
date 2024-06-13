@@ -20,24 +20,16 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun UnifyScaffold(
-    title: String,
     content: @Composable (PaddingValues) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = rememberSnackbarHostState(),
-    showNavigation: Boolean = false,
-    onNavigationClick: () -> Unit = {},
+    topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = {
-            UnifyHeader(
-                title = title,
-                onNavigationClick = onNavigationClick,
-                showNavigation = showNavigation
-            )
-        },
+        topBar = topBar,
         snackbarHost = {
             SnackbarHost(
                 hostState = snackbarHostState,
@@ -60,7 +52,6 @@ fun rememberSnackbarHostState() = remember {
 private fun UnifyScaffoldPreview() {
     MyApplicationTheme {
         UnifyScaffold(
-            title = "Title",
             content = {
 
             }

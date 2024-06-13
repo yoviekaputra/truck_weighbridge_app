@@ -1,6 +1,7 @@
 package android.template.core.components
 
 import android.template.core.ui.MyApplicationTheme
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
  * Copyright (c) 2024 Multimodule template All rights reserved.
  */
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UnifyTextField(
     modifier: Modifier = Modifier,

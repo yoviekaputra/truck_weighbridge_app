@@ -23,9 +23,13 @@ import android.template.core.ui.MyApplicationTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
@@ -49,18 +53,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun NewWeighbridgeRoute(
-    modifier: Modifier = Modifier,
-    viewModel: NewWeighbridgeViewModel = hiltViewModel()
+    modifier: Modifier = Modifier, viewModel: NewWeighbridgeViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
-    NewWeighbridgeScreen(
-        uiState = uiState.value,
-        onEvent = viewModel::onEvent,
-        modifier = modifier.padding(16.dp)
-    )
+    MyApplicationTheme {
+        NewWeighbridgeScreen(
+            uiState = uiState.value, onEvent = viewModel::onEvent, modifier = modifier
+        )
+    }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,89 +71,112 @@ internal fun NewWeighbridgeScreen(
     onEvent: (NewWeighbridgeUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier.wrapContentSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        val show = remember { mutableStateOf(false) }
-        val datePickerState = rememberDatePickerState(
-            uiState.date,
-            initialDisplayMode = DisplayMode.Picker
-        )
-        val timePickerState = rememberTimePickerState(
-            initialHour = uiState.hours,
-            initialMinute = uiState.minutes
-        )
+    val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-        UnifyDateTimePickerDialog(
-            datePickerState = datePickerState,
-            timePickerState = timePickerState,
-            show = show.value,
-            onClosed = {
-                show.value = false
-                onEvent(NewWeighbridgeUiEvent.OnDateTimeChanged(it.time))
-            }
-        )
-
-        UnifyTextField(
-            label = "Date Time",
-            initialValue = uiState.dateTimeFormatted,
-            onValueChange = { },
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { show.value = true }) {
-                    Icon(imageVector = Icons.Outlined.Edit, contentDescription = "edit_datetime")
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        UnifyTextField(
-            label = "Driver Name",
-            initialValue = uiState.driverName,
-            onValueChange = { onEvent(NewWeighbridgeUiEvent.OnDriverNameChanged(it)) },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        UnifyTextField(
-            label = "Licence Number",
-            initialValue = uiState.licenceNumber,
-            onValueChange = { onEvent(NewWeighbridgeUiEvent.OnLicenceNumberChanged(it)) },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(text = "Weight")
-
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                UnifyTextField(
-                    label = "Inbound",
-                    initialValue = uiState.inboundWeight.toString(),
-                    onValueChange = { onEvent(NewWeighbridgeUiEvent.OnInboundWeightChanged(it)) },
-                    modifier = Modifier.weight(1f)
-                )
-
-                UnifyTextField(
-                    label = "Outbound",
-                    initialValue = uiState.outboundWeight.toString(),
-                    onValueChange = { onEvent(NewWeighbridgeUiEvent.OnOutboundWeightChanged(it)) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .padding(bottom = bottomPadding)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(text = "Net Weight", fontWeight = FontWeight.Bold)
-            Text(text = uiState.netWeight, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            val show = remember { mutableStateOf(false) }
+            val datePickerState = rememberDatePickerState(
+                uiState.date, initialDisplayMode = DisplayMode.Picker
+            )
+            val timePickerState = rememberTimePickerState(
+                initialHour = uiState.hours, initialMinute = uiState.minutes
+            )
+
+            UnifyDateTimePickerDialog(datePickerState = datePickerState,
+                timePickerState = timePickerState,
+                show = show.value,
+                onClosed = {
+                    show.value = false
+                    onEvent(NewWeighbridgeUiEvent.OnDateTimeChanged(it.time))
+                })
+
+            UnifyTextField(
+                label = "Date Time",
+                initialValue = uiState.dateTimeFormatted,
+                onValueChange = { },
+                readOnly = true,
+                trailingIcon = {
+                    IconButton(onClick = { show.value = true }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = "edit_datetime"
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            UnifyTextField(
+                label = "Driver Name",
+                initialValue = uiState.driverName,
+                onValueChange = { onEvent(NewWeighbridgeUiEvent.OnDriverNameChanged(it)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            UnifyTextField(
+                label = "Licence Number",
+                initialValue = uiState.licenceNumber,
+                onValueChange = { onEvent(NewWeighbridgeUiEvent.OnLicenceNumberChanged(it)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = "Weight")
+
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    UnifyTextField(
+                        label = "Inbound",
+                        initialValue = uiState.inboundWeight.toString(),
+                        onValueChange = {
+                            onEvent(
+                                NewWeighbridgeUiEvent.OnInboundWeightChanged(
+                                    it
+                                )
+                            )
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    UnifyTextField(
+                        label = "Outbound",
+                        initialValue = uiState.outboundWeight.toString(),
+                        onValueChange = {
+                            onEvent(
+                                NewWeighbridgeUiEvent.OnOutboundWeightChanged(
+                                    it
+                                )
+                            )
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Net Weight", fontWeight = FontWeight.Bold)
+                Text(
+                    text = uiState.netWeight, fontWeight = FontWeight.Bold, fontSize = 18.sp
+                )
+            }
         }
 
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
-            }) {
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+            onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
+        }) {
             Text("Save")
         }
     }
@@ -163,9 +188,6 @@ internal fun NewWeighbridgeScreen(
 @Composable
 private fun DefaultPreview() {
     MyApplicationTheme {
-        NewWeighbridgeScreen(
-            uiState = NewWeighbridgeUiState(),
-            onEvent = { _ -> }
-        )
+        NewWeighbridgeScreen(uiState = NewWeighbridgeUiState(), onEvent = { _ -> })
     }
 }

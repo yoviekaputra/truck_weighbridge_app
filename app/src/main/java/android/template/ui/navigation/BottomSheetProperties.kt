@@ -1,5 +1,8 @@
 package android.template.ui.navigation
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
@@ -15,7 +18,7 @@ import androidx.compose.ui.unit.Dp
  * Copyright (c) 2024 NitipYuk All rights reserved.
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Immutable
 data class BottomSheetProperties(
     val skipPartiallyExpanded: Boolean = false,
@@ -27,4 +30,5 @@ data class BottomSheetProperties(
     val tonalElevation: Dp = BottomSheetDefaults.Elevation,
     val scrimColor: @Composable () -> Color = { BottomSheetDefaults.ScrimColor },
     val dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
+    val windowInsets: @Composable () -> WindowInsets = { WindowInsets.safeContent }
 )

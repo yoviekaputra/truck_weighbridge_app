@@ -17,6 +17,7 @@
 package android.template.feature.weighbridge.ui
 
 import android.template.core.components.UnifyErrorView
+import android.template.core.components.UnifyHeader
 import android.template.core.components.UnifyLoadingView
 import android.template.core.components.UnifyScaffold
 import android.template.core.data.di.fakeMyModels
@@ -79,7 +80,12 @@ fun WeighbridgeScreen(
     modifier: Modifier = Modifier
 ) {
     UnifyScaffold(
-        title = "Weighbridge",
+        topBar = {
+            UnifyHeader(
+                title = "Weighbridge",
+                showNavigation = false
+            )
+        },
         content = { padding ->
             val modifierContent = modifier.padding(padding)
 
