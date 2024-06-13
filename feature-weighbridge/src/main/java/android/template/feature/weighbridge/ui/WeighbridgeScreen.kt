@@ -19,8 +19,11 @@ package android.template.feature.weighbridge.ui
 import android.template.core.components.UnifyErrorView
 import android.template.core.components.UnifyLoadingView
 import android.template.core.components.UnifyScaffold
+import android.template.core.data.di.fakeMyModels
 import android.template.core.extensions.collectAsStateWithLifecycle
 import android.template.core.ui.MyApplicationTheme
+import android.template.feature.weighbridge.ui.WeighbridgeUiModel.Companion.asUiModel
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,16 +42,7 @@ fun WeighbridgeRoute(
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     MyApplicationTheme {
-        UnifyScaffold(
-            title = "Weighbrige",
-            content = {
-                WeighbridgeScreen(
-                    uiState = uiState.value,
-                    onEvent = viewModel::onEvent,
-                    modifier = Modifier.padding(it)
-                )
-            }
-        )
+        WeighbridgeScreen(uiState = uiState.value, onEvent = viewModel::onEvent, modifier)
     }
 }
 
@@ -58,24 +52,38 @@ fun WeighbridgeScreen(
     onEvent: (WeighbridgeUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when (uiState) {
-        is MyModelUiState.Success -> WeighbridgeList(
-            modifier = modifier,
-            items = uiState.data,
-            onDeleteClick = {
-                onEvent(WeighbridgeUiEvent.OnDeleteClick(it))
-            }, onEditClick = {
-                onEvent(WeighbridgeUiEvent.OnEditClick(it))
-            }
-        )
+    UnifyScaffold(
+        title = "Weighbridge",
+        content = { padding ->
+            val modifierContent = modifier.padding(padding)
 
-        is MyModelUiState.Error -> {
-            UnifyErrorView(errorMessage = uiState.throwable.message.orEmpty())
+            when (uiState) {
+                is MyModelUiState.Success -> WeighbridgeList(
+                    modifier = modifierContent,
+                    items = uiState.data,
+                    onDeleteClick = {
+                        onEvent(WeighbridgeUiEvent.OnDeleteClick(it))
+                    }, onEditClick = {
+                        onEvent(WeighbridgeUiEvent.OnEditClick(it))
+                    }
+                )
+
+                is MyModelUiState.Error -> {
+                    UnifyErrorView(
+                        modifier = modifierContent.fillMaxSize(),
+                        errorMessage = uiState.throwable.message.orEmpty()
+                    )
+                }
+
+                is MyModelUiState.Loading -> {
+                    UnifyLoadingView(
+                        modifier = modifierContent.fillMaxSize(),
+                        indicatorSize = 24.dp
+                    )
+                }
+            }
         }
-        is MyModelUiState.Loading -> {
-            UnifyLoadingView(indicatorSize = 24.dp)
-        }
-    }
+    )
 }
 
 @Composable
@@ -103,7 +111,31 @@ internal fun WeighbridgeList(
 private fun WeighbridgePreview() {
     MyApplicationTheme {
         WeighbridgeScreen(
+            uiState = MyModelUiState.Success(
+                fakeMyModels.asUiModel
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun WeighbridgeLoadingPreview() {
+    MyApplicationTheme {
+        WeighbridgeScreen(
             uiState = MyModelUiState.Loading,
+            onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun WeighbridgeErrorPreview() {
+    MyApplicationTheme {
+        WeighbridgeScreen(
+            uiState = MyModelUiState.Error(Throwable("Error")),
             onEvent = {}
         )
     }
