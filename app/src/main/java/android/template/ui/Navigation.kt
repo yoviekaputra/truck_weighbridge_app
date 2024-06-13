@@ -18,16 +18,20 @@ package android.template.ui
 
 import android.template.feature.weighbridge.create.ui.NewWeighbridgeRoute
 import android.template.feature.weighbridge.ui.WeighbridgeRoute
+import android.template.ui.navigation.BottomSheetProperties
+import android.template.ui.navigation.NavigationHost
+import android.template.ui.navigation.bottomSheetComposable
+import android.template.ui.navigation.rememberNavigationController
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavigation() {
-    val navController = rememberNavController()
+    val navController = rememberNavigationController()
 
-    NavHost(navController = navController, startDestination = "main") {
+    NavigationHost(navController = navController, startDestination = "main") {
         composable("main") {
             WeighbridgeRoute(
                 onCreateTicket = {
@@ -35,7 +39,10 @@ fun MainNavigation() {
                 }
             )
         }
-        composable("add") {
+        bottomSheetComposable(
+            route = "add",
+            properties = BottomSheetProperties(skipPartiallyExpanded = true)
+        ) {
             NewWeighbridgeRoute()
         }
     }
