@@ -187,13 +187,15 @@ internal fun WeighbridgeList(
 ) {
     Column(modifier = modifier) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             UnifySearchTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .weight(1f),
                 searchQuery = filterSortUiState.query,
                 onSearchQueryChanged = onSearchChanged,
             )
