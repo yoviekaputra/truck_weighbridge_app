@@ -18,6 +18,7 @@ package android.template.core.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
@@ -58,4 +59,7 @@ interface MyModelDao {
 
     @Insert
     suspend fun insertMyModel(item: WeighbridgeEntity)
+
+    @Delete
+    suspend fun delete(item: WeighbridgeEntity)
 }

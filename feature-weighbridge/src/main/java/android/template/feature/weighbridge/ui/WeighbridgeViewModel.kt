@@ -21,6 +21,7 @@ import android.template.core.data.models.WeighbridgeData
 import android.template.feature.weighbridge.ui.MyModelUiState.Error
 import android.template.feature.weighbridge.ui.MyModelUiState.Loading
 import android.template.feature.weighbridge.ui.MyModelUiState.Success
+import android.template.feature.weighbridge.ui.WeighbridgeUiModel.Companion.asData
 import android.template.feature.weighbridge.ui.WeighbridgeUiModel.Companion.asUiModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,8 +44,16 @@ class WeighbridgeViewModel @Inject constructor(
         .catch { emit(Error(it)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
 
-    fun onEvent(event: WeighbridgeUiEvent) {
+    fun onEvent(event: WeighbridgeUiEvent) = viewModelScope.launch {
+        when (event) {
+            is WeighbridgeUiEvent.OnDeleteClick -> {
+                myModelRepository.delete(data = event.data.asData)
+            }
 
+            else -> {
+
+            }
+        }
     }
 }
 

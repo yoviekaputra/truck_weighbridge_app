@@ -42,5 +42,15 @@ data class WeighbridgeUiModel(
 
         val List<WeighbridgeData>.asUiModel
             get() = map { it.asUiModel }
+
+        val WeighbridgeUiModel.asData
+            get() = WeighbridgeData(
+                id = id,
+                datetime = datetime,
+                licenceNumber = licenceNumber,
+                driverName = driverName,
+                inboundWeight = inboundWeight,
+                outboundWeight = outboundWeight
+            )
     }
 }

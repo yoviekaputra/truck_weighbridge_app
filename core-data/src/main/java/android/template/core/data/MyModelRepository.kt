@@ -28,6 +28,8 @@ interface MyModelRepository {
     val myModels: Flow<List<WeighbridgeData>>
 
     suspend fun add(data: WeighbridgeData)
+
+    suspend fun delete(data: WeighbridgeData)
 }
 
 class DefaultMyModelRepository @Inject constructor(
@@ -39,5 +41,9 @@ class DefaultMyModelRepository @Inject constructor(
 
     override suspend fun add(data: WeighbridgeData) {
         myModelDao.insertMyModel(data.asEntity)
+    }
+
+    override suspend fun delete(data: WeighbridgeData) {
+        myModelDao.delete(item = data.asEntity)
     }
 }

@@ -44,6 +44,10 @@ class FakeMyModelRepository @Inject constructor() : MyModelRepository {
     override suspend fun add(data: WeighbridgeData) {
         throw NotImplementedError()
     }
+
+    override suspend fun delete(data: WeighbridgeData) {
+        throw NotImplementedError()
+    }
 }
 
 val fakeMyModels = (0..3).map {

@@ -69,7 +69,8 @@ fun WeighbridgeScreen(
                     items = uiState.data,
                     onDeleteClick = {
                         onEvent(WeighbridgeUiEvent.OnDeleteClick(it))
-                    }, onEditClick = {
+                    },
+                    onEditClick = {
                         onEvent(WeighbridgeUiEvent.OnEditClick(it))
                     }
                 )

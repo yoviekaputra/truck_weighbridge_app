@@ -16,6 +16,7 @@
 
 package android.template.ui
 
+import android.template.feature.weighbridge.create.ui.NewWeighbridgeRoute
 import android.template.feature.weighbridge.ui.WeighbridgeRoute
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
@@ -28,6 +29,6 @@ fun MainNavigation() {
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") { WeighbridgeRoute() }
-        // TODO: Add more destinations
+        composable("add") { NewWeighbridgeRoute() }
     }
 }
