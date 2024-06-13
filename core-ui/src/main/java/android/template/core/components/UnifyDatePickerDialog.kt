@@ -27,18 +27,18 @@ fun UnifyDatePickerDialog(
     state: DatePickerState = rememberDatePickerState(
         initialSelectedDateMillis = System.currentTimeMillis()
     ),
-    onDismissRequest: () -> Unit = {},
+    onDismissRequest: (Boolean) -> Unit = {},
 ) {
     var showState by remember(show) { mutableStateOf(show) }
 
     if (showState) {
         DatePickerDialog(
-            onDismissRequest = onDismissRequest,
+            onDismissRequest = { onDismissRequest(false) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         showState = false
-                        onDismissRequest()
+                        onDismissRequest(true)
                     }
                 ) { Text("OK") }
             },
@@ -46,7 +46,7 @@ fun UnifyDatePickerDialog(
                 TextButton(
                     onClick = {
                         showState = false
-                        onDismissRequest()
+                        onDismissRequest(false)
                     }
                 ) { Text("Cancel") }
             },

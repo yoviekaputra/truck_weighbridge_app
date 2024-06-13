@@ -7,6 +7,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,10 +27,17 @@ fun UnifyDateTimePickerDialog(
     var showDatePicker by remember(show) { mutableStateOf(show) }
     var showTimePicker by remember { mutableStateOf(false) }
     var dateTime by remember {
-        mutableStateOf(
+        mutableLongStateOf(
             datePickerState.selectedDateMillis ?: System.currentTimeMillis()
         )
     }
+
+    fun convertToDate(date: Long, time: TimePickerState) = Calendar.getInstance().apply {
+        timeInMillis = date
+        set(Calendar.HOUR_OF_DAY, time.hour)
+        set(Calendar.MINUTE, time.minute)
+        dateTime = timeInMillis
+    }.time
 
     UnifyDatePickerDialog(
         modifier = modifier,
@@ -37,8 +45,12 @@ fun UnifyDateTimePickerDialog(
         state = datePickerState,
         onDismissRequest = {
             showDatePicker = false
-            showTimePicker = true
+            showTimePicker = it
             dateTime = datePickerState.selectedDateMillis ?: 0
+
+            if (!it) {
+                onClosed(convertToDate(dateTime, timePickerState))
+            }
         }
     )
 
@@ -48,14 +60,7 @@ fun UnifyDateTimePickerDialog(
         state = timePickerState,
         onDismissRequest = {
             showTimePicker = false
-            Calendar.getInstance().apply {
-                timeInMillis = dateTime
-                set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                set(Calendar.MINUTE, timePickerState.minute)
-                dateTime = timeInMillis
-            }.also {
-                onClosed(it.time)
-            }
+            onClosed(convertToDate(dateTime, timePickerState))
         }
     )
 }
