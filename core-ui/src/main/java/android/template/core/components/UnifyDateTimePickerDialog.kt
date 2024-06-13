@@ -32,6 +32,7 @@ fun UnifyDateTimePickerDialog(
     }
 
     UnifyDatePickerDialog(
+        modifier = modifier,
         show = showDatePicker,
         state = datePickerState,
         onDismissRequest = {
@@ -42,6 +43,7 @@ fun UnifyDateTimePickerDialog(
     )
 
     UnifyTimePickerDialog(
+        modifier = modifier,
         show = showTimePicker,
         state = timePickerState,
         onDismissRequest = {

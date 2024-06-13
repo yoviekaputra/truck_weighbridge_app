@@ -75,10 +75,10 @@ internal fun WeighbridgeListScreen(
 
 @Preview
 @Composable
-private fun WeighbridgeCardPreview() {
+private fun WeighbridgePreview() {
     MyApplicationTheme {
-        WeighbridgeCard(
-            data = fakeMyModels.first().asUiModel,
+        WeighbridgeListScreen(
+            items = fakeMyModels.asUiModel,
             onDeleteClick = { _ -> },
             onEditClick = { _ -> }
         )
