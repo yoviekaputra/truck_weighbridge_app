@@ -58,4 +58,6 @@ sealed interface WeighbridgeUiEvent {
     data class OnDeleteClick(val data: WeighbridgeUiModel) : WeighbridgeUiEvent
 
     data class OnEditClick(val data: WeighbridgeUiModel) : WeighbridgeUiEvent
+
+    object OnAddClick : WeighbridgeUiEvent
 }
