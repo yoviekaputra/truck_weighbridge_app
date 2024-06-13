@@ -17,6 +17,7 @@
 package android.template.feature.weighbridge.create.ui
 
 import android.template.core.components.UnifyDateTimePickerDialog
+import android.template.core.components.UnifyLoadingView
 import android.template.core.components.UnifyTextField
 import android.template.core.extensions.collectAsStateWithLifecycle
 import android.template.core.ui.MyApplicationTheme
@@ -41,21 +42,42 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun NewWeighbridgeRoute(
-    modifier: Modifier = Modifier, viewModel: NewWeighbridgeViewModel = hiltViewModel()
+    onSavedSuccess: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: NewWeighbridgeViewModel = hiltViewModel()
 ) {
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = lifecycle, key2 = viewModel) {
+        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+            viewModel.uiEffect.collectLatest {
+                when (it) {
+                    is NewWeighbridgeUiEffect.OnSavedSuccess -> onSavedSuccess()
+                    else -> {
+
+                    }
+                }
+            }
+        }
+    }
 
     MyApplicationTheme {
         NewWeighbridgeScreen(
@@ -130,37 +152,12 @@ internal fun NewWeighbridgeScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Weight")
-
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    UnifyTextField(
-                        label = "Inbound",
-                        initialValue = uiState.inboundWeight.toString(),
-                        onValueChange = {
-                            onEvent(
-                                NewWeighbridgeUiEvent.OnInboundWeightChanged(
-                                    it
-                                )
-                            )
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    UnifyTextField(
-                        label = "Outbound",
-                        initialValue = uiState.outboundWeight.toString(),
-                        onValueChange = {
-                            onEvent(
-                                NewWeighbridgeUiEvent.OnOutboundWeightChanged(
-                                    it
-                                )
-                            )
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
+            Weight(
+                inboundWeight = uiState.inboundWeight,
+                outboundHeight = uiState.outboundWeight,
+                onInboundChanged = { onEvent(NewWeighbridgeUiEvent.OnInboundWeightChanged(it)) },
+                onOutboundChanged = { onEvent(NewWeighbridgeUiEvent.OnOutboundWeightChanged(it)) }
+            )
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -174,10 +171,56 @@ internal fun NewWeighbridgeScreen(
             }
         }
 
-        Button(modifier = Modifier.fillMaxWidth(), onClick = {
+        SaveButton(isLoading = uiState.isLoading) {
             onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
-        }) {
+        }
+    }
+}
+
+@Composable
+private fun SaveButton(isLoading: Boolean, onClick: () -> Unit) {
+    Button(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
+            if (isLoading) {
+                UnifyLoadingView(modifier = Modifier, inverseColor = true, size = 24.dp)
+            }
+
             Text("Save")
+        }
+    }
+}
+
+@Composable
+private fun Weight(
+    inboundWeight: String,
+    outboundHeight: String,
+    onInboundChanged: (String) -> Unit,
+    onOutboundChanged: (String) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(text = "Weight")
+
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            UnifyTextField(
+                label = "Inbound",
+                initialValue = inboundWeight,
+                onValueChange = onInboundChanged,
+                modifier = Modifier.weight(1f)
+            )
+
+            UnifyTextField(
+                label = "Outbound",
+                initialValue = outboundHeight,
+                onValueChange = onOutboundChanged,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }

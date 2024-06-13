@@ -21,6 +21,7 @@ import android.template.core.data.models.WeighbridgeData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,6 +36,9 @@ class NewWeighbridgeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(NewWeighbridgeUiState())
     val uiState: StateFlow<NewWeighbridgeUiState> get() = _uiState.asStateFlow()
+
+    private val _uiEffect = MutableSharedFlow<NewWeighbridgeUiEffect>()
+    val uiEffect: MutableSharedFlow<NewWeighbridgeUiEffect> get() = _uiEffect
 
 
     fun onEvent(event: NewWeighbridgeUiEvent) {
@@ -52,30 +56,37 @@ class NewWeighbridgeViewModel @Inject constructor(
             }
 
             is NewWeighbridgeUiEvent.OnInboundWeightChanged -> _uiState.update {
-                it.copy(inboundWeight = event.value.toDoubleOrNull() ?: 0.0)
+                it.copy(inboundWeight = event.value)
             }
 
             is NewWeighbridgeUiEvent.OnOutboundWeightChanged -> _uiState.update {
-                it.copy(outboundWeight = event.value.toDoubleOrNull() ?: 0.0)
+                it.copy(outboundWeight = event.value)
             }
 
-            is NewWeighbridgeUiEvent.OnSaveClicked -> {
-                save()
-            }
+            is NewWeighbridgeUiEvent.OnSaveClicked -> save()
         }
 
     }
 
     private fun save() = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true) }
+
         val state = _uiState.value
         val newData = WeighbridgeData(
             datetime = state.date,
             driverName = state.driverName,
             licenceNumber = state.licenceNumber,
-            inboundWeight = state.inboundWeight,
-            outboundWeight = state.outboundWeight
+            inboundWeight = state.inboundWeight.toDoubleOrNull() ?: 0.0,
+            outboundWeight = state.outboundWeight.toDoubleOrNull() ?: 0.0
         )
-        myModelRepository.add(newData)
+
+        runCatching {
+            myModelRepository.add(newData)
+        }.onSuccess {
+            _uiEffect.emit(NewWeighbridgeUiEffect.OnSavedSuccess)
+        }.onFailure {
+            _uiEffect.emit(NewWeighbridgeUiEffect.OnSaveError(message = it.message.orEmpty()))
+        }
     }
 }
 
@@ -83,4 +94,11 @@ sealed interface MyModelUiState {
     object Loading : MyModelUiState
     data class Error(val throwable: Throwable) : MyModelUiState
     data class Success(val data: List<String>) : MyModelUiState
+}
+
+sealed interface NewWeighbridgeUiEffect {
+
+    data class OnSaveError(val message: String) : NewWeighbridgeUiEffect
+
+    object OnSavedSuccess : NewWeighbridgeUiEffect
 }

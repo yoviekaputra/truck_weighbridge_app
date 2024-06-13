@@ -111,7 +111,7 @@ fun WeighbridgeScreen(
                 is MyModelUiState.Loading -> {
                     UnifyLoadingView(
                         modifier = modifierContent.fillMaxSize(),
-                        indicatorSize = 24.dp
+                        size = 24.dp
                     )
                 }
             }
