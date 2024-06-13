@@ -28,7 +28,15 @@ fun MainNavigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "main") {
-        composable("main") { WeighbridgeRoute() }
-        composable("add") { NewWeighbridgeRoute() }
+        composable("main") {
+            WeighbridgeRoute(
+                onCreateTicket = {
+                    navController.navigate("add")
+                }
+            )
+        }
+        composable("add") {
+            NewWeighbridgeRoute()
+        }
     }
 }

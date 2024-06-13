@@ -26,8 +26,11 @@ import android.template.feature.weighbridge.ui.WeighbridgeUiModel.Companion.asUi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -44,8 +47,15 @@ class WeighbridgeViewModel @Inject constructor(
         .catch { emit(Error(it)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
 
+    private val _uiEffect = MutableSharedFlow<WeighbridgeUiEffect>()
+    val uiEffect: SharedFlow<WeighbridgeUiEffect> = _uiEffect.asSharedFlow()
+
     fun onEvent(event: WeighbridgeUiEvent) = viewModelScope.launch {
         when (event) {
+            is WeighbridgeUiEvent.OnAddClick -> {
+                _uiEffect.emit(WeighbridgeUiEffect.OnCreateTicket)
+            }
+
             is WeighbridgeUiEvent.OnDeleteClick -> {
                 myModelRepository.delete(data = event.data.asData)
             }
@@ -70,4 +80,11 @@ sealed interface WeighbridgeUiEvent {
     data class OnEditClick(val data: WeighbridgeUiModel) : WeighbridgeUiEvent
 
     object OnAddClick : WeighbridgeUiEvent
+}
+
+sealed interface WeighbridgeUiEffect {
+
+    object OnCreateTicket : WeighbridgeUiEffect
+
+    data class OnEditTicket(val data: WeighbridgeUiModel) : WeighbridgeUiEffect
 }
