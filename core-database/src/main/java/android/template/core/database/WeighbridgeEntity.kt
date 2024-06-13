@@ -54,8 +54,25 @@ data class WeighbridgeEntity(
 
 @Dao
 interface MyModelDao {
+    @Query("SELECT * FROM weighbridge ORDER BY uid ASC LIMIT 10")
+    fun getAsc(): Flow<List<WeighbridgeEntity>>
+
     @Query("SELECT * FROM weighbridge ORDER BY uid DESC LIMIT 10")
-    fun getMyModels(): Flow<List<WeighbridgeEntity>>
+    fun getDesc(): Flow<List<WeighbridgeEntity>>
+
+    @Query(
+        "SELECT * FROM weighbridge " +
+                "WHERE (licenceNumber LIKE :query || '%' OR driverName LIKE :query || '%')" +
+                "ORDER BY uid ASC"
+    )
+    fun getByQueryOrderUidAsc(query: String): Flow<List<WeighbridgeEntity>>
+
+    @Query(
+        "SELECT * FROM weighbridge " +
+                "WHERE (licenceNumber LIKE :query || '%' OR driverName LIKE :query || '%')" +
+                "ORDER BY uid DESC"
+    )
+    fun getByQueryOrderUidDesc(query: String): Flow<List<WeighbridgeEntity>>
 
     @Insert
     suspend fun insertMyModel(item: WeighbridgeEntity)

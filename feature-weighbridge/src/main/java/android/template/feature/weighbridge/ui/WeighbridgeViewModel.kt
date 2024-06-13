@@ -18,32 +18,57 @@ package android.template.feature.weighbridge.ui
 
 import android.template.core.data.MyModelRepository
 import android.template.core.data.models.WeighbridgeData
-import android.template.feature.weighbridge.ui.MyModelUiState.Error
-import android.template.feature.weighbridge.ui.MyModelUiState.Loading
-import android.template.feature.weighbridge.ui.MyModelUiState.Success
-import android.template.feature.weighbridge.ui.WeighbridgeUiModel.Companion.asData
-import android.template.feature.weighbridge.ui.WeighbridgeUiModel.Companion.asUiModel
+import android.template.feature.weighbridge.ui.models.SearchResultUiState
+import android.template.feature.weighbridge.ui.models.SearchResultUiState.Error
+import android.template.feature.weighbridge.ui.models.SearchResultUiState.Loading
+import android.template.feature.weighbridge.ui.models.SearchResultUiState.Success
+import android.template.feature.weighbridge.ui.models.WeighbridgeFilterSort
+import android.template.feature.weighbridge.ui.models.WeighbridgeFilterSortUiModel
+import android.template.feature.weighbridge.ui.models.WeighbridgeUiEffect
+import android.template.feature.weighbridge.ui.models.WeighbridgeUiEvent
+import android.template.feature.weighbridge.ui.models.WeighbridgeUiModel.Companion.asData
+import android.template.feature.weighbridge.ui.models.WeighbridgeUiModel.Companion.asUiModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class WeighbridgeViewModel @Inject constructor(
     private val myModelRepository: MyModelRepository
 ) : ViewModel() {
 
-    val uiState: StateFlow<MyModelUiState> = myModelRepository.myModels
-        .map<List<WeighbridgeData>, MyModelUiState> { Success(data = it.asUiModel) }
+    private val _filterSortUiState = MutableStateFlow(WeighbridgeFilterSortUiModel())
+    val filterSortUiState: StateFlow<WeighbridgeFilterSortUiModel> =
+        _filterSortUiState.asStateFlow()
+
+    val searchResultUiState: StateFlow<SearchResultUiState> = _filterSortUiState
+        .debounce { if (it.query.isEmpty()) 0 else 500 }
+        .flatMapLatest {
+            myModelRepository.get(
+                query = _filterSortUiState.value.query,
+                sortByAscending = _filterSortUiState.value.sortByDate == WeighbridgeFilterSort.DEFAULT
+            )
+        }.map<List<WeighbridgeData>, SearchResultUiState> {
+            Success(data = it.asUiModel)
+        }
         .catch { emit(Error(it)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
 
@@ -60,31 +85,27 @@ class WeighbridgeViewModel @Inject constructor(
                 myModelRepository.delete(data = event.data.asData)
             }
 
+            is WeighbridgeUiEvent.OnSearchChanged -> {
+                onSearchChanged(event.query)
+            }
+
+            is WeighbridgeUiEvent.OnSortChanged -> {
+                _filterSortUiState.update { it.copy(sortByDate = it.sortByDate.next()) }
+            }
+
             else -> {
 
             }
         }
     }
+
+    private fun onSearchChanged(query: String) {
+        _filterSortUiState.update { it.copy(query = query) }
+    }
 }
 
-sealed interface MyModelUiState {
-    object Loading : MyModelUiState
-    data class Error(val throwable: Throwable) : MyModelUiState
-    data class Success(val data: List<WeighbridgeUiModel>) : MyModelUiState
-}
 
-sealed interface WeighbridgeUiEvent {
 
-    data class OnDeleteClick(val data: WeighbridgeUiModel) : WeighbridgeUiEvent
 
-    data class OnEditClick(val data: WeighbridgeUiModel) : WeighbridgeUiEvent
 
-    object OnAddClick : WeighbridgeUiEvent
-}
 
-sealed interface WeighbridgeUiEffect {
-
-    object OnCreateTicket : WeighbridgeUiEffect
-
-    data class OnEditTicket(val data: WeighbridgeUiModel) : WeighbridgeUiEffect
-}

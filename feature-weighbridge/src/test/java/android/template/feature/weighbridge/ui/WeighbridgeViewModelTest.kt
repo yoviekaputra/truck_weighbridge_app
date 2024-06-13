@@ -18,8 +18,8 @@ package android.template.feature.weighbridge.ui.mymodel
 
 
 import android.template.core.data.MyModelRepository
-import android.template.feature.weighbridge.ui.MyModelUiState
 import android.template.feature.weighbridge.ui.WeighbridgeViewModel
+import android.template.feature.weighbridge.ui.models.SearchResultUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -38,13 +38,13 @@ class WeighbridgeViewModelTest {
     @Test
     fun uiState_initiallyLoading() = runTest {
         val viewModel = WeighbridgeViewModel(FakeMyModelRepository())
-        assertEquals(viewModel.uiState.first(), MyModelUiState.Loading)
+        assertEquals(viewModel.searchResultUiState.first(), SearchResultUiState.Loading)
     }
 
     @Test
     fun uiState_onItemSaved_isDisplayed() = runTest {
         val viewModel = WeighbridgeViewModel(FakeMyModelRepository())
-        assertEquals(viewModel.uiState.first(), MyModelUiState.Loading)
+        assertEquals(viewModel.searchResultUiState.first(), SearchResultUiState.Loading)
     }
 }
 

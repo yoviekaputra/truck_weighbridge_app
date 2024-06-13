@@ -40,7 +40,11 @@ interface DataModule {
 }
 
 class FakeMyModelRepository @Inject constructor() : MyModelRepository {
-    override val myModels: Flow<List<WeighbridgeData>> = flowOf(fakeMyModels)
+
+    override fun get(query: String, sortByAscending: Boolean): Flow<List<WeighbridgeData>> {
+        return flowOf(fakeMyModels)
+    }
+
     override suspend fun add(data: WeighbridgeData) {
         throw NotImplementedError()
     }

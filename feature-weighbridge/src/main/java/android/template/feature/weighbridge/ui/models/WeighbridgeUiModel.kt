@@ -1,4 +1,4 @@
-package android.template.feature.weighbridge.ui
+package android.template.feature.weighbridge.ui.models
 
 import android.template.core.data.models.WeighbridgeData
 import android.template.core.extensions.asDateFormatted

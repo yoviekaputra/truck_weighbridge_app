@@ -1,5 +1,6 @@
-package android.template.feature.weighbridge.ui
+package android.template.feature.weighbridge.ui.components
 
+import android.template.feature.weighbridge.ui.models.WeighbridgeUiModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
