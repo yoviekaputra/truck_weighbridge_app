@@ -22,6 +22,7 @@ import android.template.core.components.UnifyLoadingView
 import android.template.core.components.UnifyScaffold
 import android.template.core.components.UnifySearchTextField
 import android.template.core.data.di.fakeMyModels
+import android.template.core.extensions.LaunchUiEffect
 import android.template.core.extensions.collectAsStateWithLifecycle
 import android.template.core.ui.MyApplicationTheme
 import android.template.feature.weighbridge.ui.components.WeighbridgeCard
@@ -49,15 +50,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -70,15 +67,12 @@ fun WeighbridgeRoute(
 
     val searchResultUiState = viewModel.searchResultUiState.collectAsStateWithLifecycle()
     val filterSortUiState = viewModel.filterSortUiState.collectAsStateWithLifecycle()
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    LaunchedEffect(key1 = lifecycle, key2 = viewModel) {
-        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
-            viewModel.uiEffect.collectLatest {
-                when (it) {
-                    is WeighbridgeUiEffect.OnCreateTicket -> onCreateTicket()
-                    is WeighbridgeUiEffect.OnEditTicket -> onEditTicket(it.id)
-                }
+    LaunchUiEffect(viewModel = viewModel) {
+        viewModel.uiEffect.collectLatest {
+            when (it) {
+                is WeighbridgeUiEffect.OnCreateTicket -> onCreateTicket()
+                is WeighbridgeUiEffect.OnEditTicket -> onEditTicket(it.id)
             }
         }
     }

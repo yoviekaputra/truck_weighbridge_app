@@ -2,12 +2,15 @@ package android.template.core.extensions
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
@@ -46,5 +49,19 @@ fun <T> Flow<T>.collectAsStateWithLifecycle(
                 this@collectAsStateWithLifecycle.collect { this@produceState.value = it }
             }
         }
+    }
+}
+
+
+@Composable
+fun <T : ViewModel> LaunchUiEffect(
+    lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle,
+    viewModel: T,
+    block: suspend CoroutineScope.(T) -> Unit
+) {
+    LaunchedEffect(key1 = lifecycle, key2 = viewModel) {
+        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED, block = {
+            block(viewModel)
+        })
     }
 }
