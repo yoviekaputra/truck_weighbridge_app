@@ -59,6 +59,8 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":core-extensions"))
     androidTestImplementation(project(":core-testing"))
+    implementation(project(":core-ut"))
+    testImplementation(project(":core-ut"))
 
     // Core Android dependencies
     implementation(libs.androidx.activity.compose)
@@ -88,11 +90,14 @@ dependencies {
     testImplementation(libs.hilt.android.testing)
     kaptTest(libs.hilt.android.compiler)
 
+    // Instrumented tests: jUnit rules and runners
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+
     // Local tests: jUnit, coroutines, Android runner
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 
-    // Instrumented tests: jUnit rules and runners
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.runner)
+    // Mockk
+    testImplementation(libs.mockk)
 }

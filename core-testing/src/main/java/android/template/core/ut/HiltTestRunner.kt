@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.template.core.testing
+package android.template.core.ut
 
 import android.app.Application
 import android.content.Context

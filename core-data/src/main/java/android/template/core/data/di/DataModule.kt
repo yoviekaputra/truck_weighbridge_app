@@ -71,3 +71,12 @@ val fakeMyModels = (0..5).map {
         outboundWeight = it * 15.0
     )
 }
+
+fun getFakeMyModel(id: Int) = WeighbridgeData(
+    id = id,
+    datetime = System.currentTimeMillis() + id,
+    driverName = "Driver $id",
+    licenceNumber = "BA $id",
+    inboundWeight = id * 10.0,
+    outboundWeight = id * 15.0
+)
