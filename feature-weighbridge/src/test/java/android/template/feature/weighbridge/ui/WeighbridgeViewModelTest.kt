@@ -124,7 +124,7 @@ class WeighbridgeViewModelTest {
         val fakeModels = listOf(getFakeMyModel(fakeId))
         val result = mutableListOf<SearchResultUiState>()
 
-        backgroundScope.launch(UnconfinedTestDispatcher()) {
+        val job = backgroundScope.launch(UnconfinedTestDispatcher()) {
             viewModel.searchResultUiState.toList(result)
         }
 
@@ -145,6 +145,7 @@ class WeighbridgeViewModelTest {
         assertEquals(WeighbridgeFilterSort.DEFAULT, filterSort.sortByDate)
 
         verify { weighbridgeRepository.get(any(), any()) }
+        job.cancel()
     }
 
     @Test
@@ -155,7 +156,7 @@ class WeighbridgeViewModelTest {
         val fakeModels = listOf(getFakeMyModel(fakeId))
         val result = mutableListOf<SearchResultUiState>()
 
-        backgroundScope.launch(UnconfinedTestDispatcher()) {
+        val job = backgroundScope.launch(UnconfinedTestDispatcher()) {
             viewModel.searchResultUiState.toList(result)
         }
 
@@ -177,6 +178,7 @@ class WeighbridgeViewModelTest {
         assertEquals(WeighbridgeFilterSort.DESC, filterSort.sortByDate)
 
         verify { weighbridgeRepository.get(any(), any()) }
+        job.cancel()
     }
 
     @Test
