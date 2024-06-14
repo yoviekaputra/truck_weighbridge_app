@@ -54,6 +54,10 @@ data class WeighbridgeEntity(
 
 @Dao
 interface MyModelDao {
+
+    @Query("SELECT * FROM weighbridge WHERE uid = :id")
+    fun get(id: Int): Flow<WeighbridgeEntity>
+
     @Query("SELECT * FROM weighbridge ORDER BY uid ASC LIMIT 10")
     fun getAsc(): Flow<List<WeighbridgeEntity>>
 

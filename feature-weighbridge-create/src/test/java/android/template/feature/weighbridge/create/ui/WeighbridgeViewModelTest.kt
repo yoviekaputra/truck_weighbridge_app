@@ -17,6 +17,9 @@
 package android.template.feature.weighbridge.ui.mymodel
 
 
+import android.template.core.data.MyModelRepository
+import android.template.feature.weighbridge.create.ui.EditedTicketUiState
+import android.template.feature.weighbridge.create.ui.MyModelViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -24,9 +27,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import android.template.core.data.MyModelRepository
-import android.template.feature.weighbridge.create.ui.MyModelUiState
-import android.template.feature.weighbridge.create.ui.MyModelViewModel
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -38,13 +38,13 @@ class MyModelViewModelTest {
     @Test
     fun uiState_initiallyLoading() = runTest {
         val viewModel = MyModelViewModel(FakeMyModelRepository())
-        assertEquals(viewModel.uiState.first(), MyModelUiState.Loading)
+        assertEquals(viewModel.uiState.first(), EditedTicketUiState.Loading)
     }
 
     @Test
     fun uiState_onItemSaved_isDisplayed() = runTest {
         val viewModel = MyModelViewModel(FakeMyModelRepository())
-        assertEquals(viewModel.uiState.first(), MyModelUiState.Loading)
+        assertEquals(viewModel.uiState.first(), EditedTicketUiState.Loading)
     }
 }
 

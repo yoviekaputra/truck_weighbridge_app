@@ -40,6 +40,9 @@ interface DataModule {
 }
 
 class FakeMyModelRepository @Inject constructor() : MyModelRepository {
+    override fun get(id: Int): Flow<WeighbridgeData> {
+        throw NotImplementedError()
+    }
 
     override fun get(query: String, sortByAscending: Boolean): Flow<List<WeighbridgeData>> {
         return flowOf(fakeMyModels)

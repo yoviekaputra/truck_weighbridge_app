@@ -65,7 +65,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun NewWeighbridgeRoute(
-    onSavedSuccess: () -> Unit,
+    onClosePage: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: NewWeighbridgeViewModel = hiltViewModel()
 ) {
@@ -76,10 +76,8 @@ fun NewWeighbridgeRoute(
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
             viewModel.uiEffect.collectLatest {
                 when (it) {
-                    is NewWeighbridgeUiEffect.OnSavedSuccess -> onSavedSuccess()
-                    is NewWeighbridgeUiEffect.OnSaveError -> {
-                        println(it.message)
-                    }
+                    is NewWeighbridgeUiEffect.OnSavedSuccess,
+                    is NewWeighbridgeUiEffect.OnLoadedDataError -> onClosePage()
                 }
             }
         }
@@ -95,7 +93,7 @@ fun NewWeighbridgeRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun NewWeighbridgeScreen(
-    uiState: NewWeighbridgeUiState,
+    uiState: NewWeighbridgeUiModel,
     onEvent: (NewWeighbridgeUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -135,7 +133,8 @@ internal fun NewWeighbridgeScreen(
             UnifyTextField(
                 label = "Date Time",
                 initialValue = uiState.dateTimeFormatted,
-                onValueChange = { },
+                onValueChange = {
+                },
                 readOnly = true,
                 trailingIcon = {
                     IconButton(onClick = { show.value = true }) {
@@ -145,6 +144,7 @@ internal fun NewWeighbridgeScreen(
                         )
                     }
                 },
+                enabled = uiState.shouldEdit.not(),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -152,6 +152,7 @@ internal fun NewWeighbridgeScreen(
                 label = "Driver Name",
                 initialValue = uiState.driverName,
                 onValueChange = { onEvent(NewWeighbridgeUiEvent.OnDriverNameChanged(it)) },
+                enabled = uiState.shouldEdit.not(),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -159,6 +160,7 @@ internal fun NewWeighbridgeScreen(
                 label = "Licence Number",
                 initialValue = uiState.licenceNumber,
                 onValueChange = { onEvent(NewWeighbridgeUiEvent.OnLicenceNumberChanged(it)) },
+                enabled = uiState.shouldEdit.not(),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -220,7 +222,8 @@ private fun StickyError(error: String, modifier: Modifier = Modifier) {
 private fun SaveButton(isLoading: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         modifier = modifier.fillMaxWidth(),
-        onClick = onClick
+        onClick = onClick,
+        enabled = !isLoading
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -270,7 +273,7 @@ private fun Weight(
 @Composable
 private fun DefaultPreview() {
     MyApplicationTheme {
-        NewWeighbridgeScreen(uiState = NewWeighbridgeUiState(), onEvent = { _ -> })
+        NewWeighbridgeScreen(uiState = NewWeighbridgeUiModel(), onEvent = { _ -> })
     }
 }
 
@@ -278,7 +281,8 @@ private fun DefaultPreview() {
 @Composable
 private fun ErrorPreview() {
     MyApplicationTheme {
-        NewWeighbridgeScreen(uiState = NewWeighbridgeUiState(
+        NewWeighbridgeScreen(
+            uiState = NewWeighbridgeUiModel(
             errorMessage = "Error Message"
         ), onEvent = { _ -> })
     }

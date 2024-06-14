@@ -14,7 +14,8 @@ import java.util.Locale
  */
 
 @Immutable
-data class NewWeighbridgeUiState(
+data class NewWeighbridgeUiModel(
+    val id: Int = 0,
     val date: Long = currentDateTime.time,
     val hours: Int = date.asTimeOfHours,
     val minutes: Int = date.asTimeOfMinutes,
@@ -23,7 +24,8 @@ data class NewWeighbridgeUiState(
     val inboundWeight: String = "",
     val outboundWeight: String = "",
     val isLoading: Boolean = false,
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val shouldEdit: Boolean = false
 ) {
 
     val netWeight: String

@@ -43,9 +43,7 @@ fun MainNavigation() {
             route = "add",
             properties = BottomSheetProperties(skipPartiallyExpanded = true)
         ) {
-            NewWeighbridgeRoute(onSavedSuccess = {
-                navController.popBackStack()
-            })
+            NewWeighbridgeRoute(onClosePage = { navController.popBackStack() })
         }
     }
 }

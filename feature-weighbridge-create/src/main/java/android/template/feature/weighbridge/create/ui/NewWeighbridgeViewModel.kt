@@ -18,29 +18,74 @@ package android.template.feature.weighbridge.create.ui
 
 import android.template.core.data.MyModelRepository
 import android.template.core.data.models.WeighbridgeData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NewWeighbridgeViewModel @Inject constructor(
-    private val myModelRepository: MyModelRepository
+    private val myModelRepository: MyModelRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(NewWeighbridgeUiState())
-    val uiState: StateFlow<NewWeighbridgeUiState> get() = _uiState.asStateFlow()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val editedTicket = savedStateHandle.getStateFlow("id", 0)
+        .filter { it != 0 }
+        .flatMapLatest { myModelRepository.get(id = it) }
+        .map<WeighbridgeData, EditedTicketUiState> { EditedTicketUiState.Success(it) }
+        .catch { emit(EditedTicketUiState.Error("Data not found")) }
+
+    private val _uiState = MutableStateFlow(NewWeighbridgeUiModel())
+    val uiState: StateFlow<NewWeighbridgeUiModel> get() = _uiState.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<NewWeighbridgeUiEffect>()
     val uiEffect: MutableSharedFlow<NewWeighbridgeUiEffect> get() = _uiEffect
 
+    init {
+        viewModelScope.launch {
+            editedTicket.collectLatest { state ->
+                when (state) {
+                    is EditedTicketUiState.Error -> {
+                        _uiState.update {
+                            it.copy(isLoading = true, errorMessage = state.message)
+                        }
+                        delay(1000)
+                        uiEffect.emit(NewWeighbridgeUiEffect.OnLoadedDataError(state.message))
+                    }
 
+                    is EditedTicketUiState.Success -> {
+                        val weighbridge = state.data
+                        _uiState.update {
+                            it.copy(
+                                shouldEdit = true,
+                                id = weighbridge.id,
+                                driverName = weighbridge.driverName,
+                                licenceNumber = weighbridge.licenceNumber,
+                                inboundWeight = weighbridge.inboundWeight.toString(),
+                                outboundWeight = weighbridge.outboundWeight.toString(),
+                                date = weighbridge.datetime
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
     fun onEvent(event: NewWeighbridgeUiEvent) {
         when (event) {
             is NewWeighbridgeUiEvent.OnDateTimeChanged -> _uiState.update {
@@ -83,6 +128,7 @@ class NewWeighbridgeViewModel @Inject constructor(
     private fun processSave() = viewModelScope.launch {
         val state = _uiState.value
         val newData = WeighbridgeData(
+            id = state.id,
             datetime = state.date,
             driverName = state.driverName,
             licenceNumber = state.licenceNumber,
@@ -94,8 +140,8 @@ class NewWeighbridgeViewModel @Inject constructor(
             myModelRepository.add(newData)
         }.onSuccess {
             _uiEffect.emit(NewWeighbridgeUiEffect.OnSavedSuccess)
-        }.onFailure {
-            _uiEffect.emit(NewWeighbridgeUiEffect.OnSaveError(message = it.message.orEmpty()))
+        }.onFailure { t ->
+            _uiState.update { it.copy(isLoading = false, errorMessage = t.message.orEmpty()) }
         }
     }
 
@@ -115,15 +161,13 @@ class NewWeighbridgeViewModel @Inject constructor(
     }
 }
 
-sealed interface MyModelUiState {
-    object Loading : MyModelUiState
-    data class Error(val throwable: Throwable) : MyModelUiState
-    data class Success(val data: List<String>) : MyModelUiState
+sealed interface EditedTicketUiState {
+    data class Error(val message: String) : EditedTicketUiState
+    data class Success(val data: WeighbridgeData) : EditedTicketUiState
 }
 
 sealed interface NewWeighbridgeUiEffect {
-
-    data class OnSaveError(val message: String) : NewWeighbridgeUiEffect
+    data class OnLoadedDataError(val message: String) : NewWeighbridgeUiEffect
 
     object OnSavedSuccess : NewWeighbridgeUiEffect
 }

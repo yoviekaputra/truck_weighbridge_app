@@ -76,7 +76,7 @@ fun WeighbridgeRoute(
             viewModel.uiEffect.collectLatest {
                 when (it) {
                     is WeighbridgeUiEffect.OnCreateTicket -> onCreateTicket()
-                    else -> {
+                    is WeighbridgeUiEffect.OnEditTicket -> {
 
                     }
                 }

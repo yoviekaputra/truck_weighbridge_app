@@ -25,6 +25,9 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface MyModelRepository {
+
+    fun get(id: Int): Flow<WeighbridgeData>
+
     fun get(query: String, sortByAscending: Boolean = true): Flow<List<WeighbridgeData>>
 
     suspend fun add(data: WeighbridgeData)
@@ -35,6 +38,9 @@ interface MyModelRepository {
 class DefaultMyModelRepository @Inject constructor(
     private val myModelDao: MyModelDao
 ) : MyModelRepository {
+    override fun get(id: Int): Flow<WeighbridgeData> {
+        return myModelDao.get(id = id).map { it.asData }
+    }
 
     override fun get(query: String, sortByAscending: Boolean): Flow<List<WeighbridgeData>> {
         val result = when {
