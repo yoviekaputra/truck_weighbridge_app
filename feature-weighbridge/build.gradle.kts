@@ -60,7 +60,6 @@ dependencies {
     implementation(project(":core-extensions"))
     androidTestImplementation(project(":core-testing"))
     implementation(project(":core-ut"))
-    testImplementation(project(":core-ut"))
 
     // Core Android dependencies
     implementation(libs.androidx.activity.compose)
