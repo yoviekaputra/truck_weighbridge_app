@@ -40,3 +40,11 @@ include(":core-extensions")
 include(":feature-weighbridge")
 include(":feature-weighbridge-create")
 include(":test-app")
+
+/**
+ * ./gradlew sonar \
+ *   -Dsonar.projectKey=android_app_scanner \
+ *   -Dsonar.projectName='android_app_scanner' \
+ *   -Dsonar.host.url=http://localhost:9000 \
+ *   -Dsonar.token=sqp_d6e2340b3e2db89c054606f5491f6669fcb5d425
+ */

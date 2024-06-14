@@ -17,6 +17,7 @@ junit = "4.13.2"
 kotlin = "1.8.20"
 ksp = "1.8.20-1.0.11"
 mokk = "1.13.11"
+sonarqube = "5.0.0.4638"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
@@ -57,3 +58,4 @@ hilt-gradle = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }

@@ -116,14 +116,12 @@ internal fun MutableList<NavBackStackEntry>.PopulateVisibleList(
         val lifecycle = entry.getLifecycle()
         DisposableEffect(lifecycle) {
             val observer = LifecycleEventObserver { _, event ->
-                // ON_START -> add to visibleBackStack, ON_STOP -> remove from visibleBackStack
-                if (event == Lifecycle.Event.ON_START) {
-                    // We want to treat the visible lists as Sets but we want to keep
-                    // the functionality of mutableStateListOf() so that we recompose in response
-                    // to adds and removes.
-                    if (!contains(entry)) {
-                        add(entry)
-                    }
+                // 1. ON_START -> add to visibleBackStack, ON_STOP -> remove from visibleBackStack
+                // 2. We want to treat the visible lists as Sets but we want to keep
+                // the functionality of mutableStateListOf() so that we recompose in response
+                // to adds and removes.
+                if (event == Lifecycle.Event.ON_START && !contains(entry)) {
+                    add(entry)
                 }
                 if (event == Lifecycle.Event.ON_STOP) {
                     remove(entry)
