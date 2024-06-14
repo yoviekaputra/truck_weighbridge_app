@@ -21,6 +21,10 @@ import android.template.core.components.UnifyLoadingView
 import android.template.core.components.UnifyTextField
 import android.template.core.extensions.collectAsStateWithLifecycle
 import android.template.core.ui.MyApplicationTheme
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +36,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.DisplayMode
@@ -47,6 +52,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,8 +77,8 @@ fun NewWeighbridgeRoute(
             viewModel.uiEffect.collectLatest {
                 when (it) {
                     is NewWeighbridgeUiEffect.OnSavedSuccess -> onSavedSuccess()
-                    else -> {
-
+                    is NewWeighbridgeUiEffect.OnSaveError -> {
+                        println(it.message)
                     }
                 }
             }
@@ -97,13 +103,17 @@ internal fun NewWeighbridgeScreen(
 
     Column(
         modifier = modifier
-            .padding(horizontal = 16.dp)
             .padding(bottom = bottomPadding)
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
+
+        StickyError(error = uiState.errorMessage)
+
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             val show = remember { mutableStateOf(false) }
@@ -171,16 +181,45 @@ internal fun NewWeighbridgeScreen(
             }
         }
 
-        SaveButton(isLoading = uiState.isLoading) {
-            onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
+        SaveButton(
+            isLoading = uiState.isLoading,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            onClick = {
+                onEvent(NewWeighbridgeUiEvent.OnSaveClicked)
+            }
+        )
+    }
+}
+
+@Composable
+private fun StickyError(error: String, modifier: Modifier = Modifier) {
+    AnimatedVisibility(
+        enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+        visible = error.isNotBlank()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier
+                .background(Color.Red)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Notifications,
+                contentDescription = "warning icon",
+                tint = Color.White
+            )
+
+            Text(text = error, color = Color.White, fontSize = 14.sp)
         }
     }
 }
 
 @Composable
-private fun SaveButton(isLoading: Boolean, onClick: () -> Unit) {
+private fun SaveButton(isLoading: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         onClick = onClick
     ) {
         Row(
@@ -232,5 +271,15 @@ private fun Weight(
 private fun DefaultPreview() {
     MyApplicationTheme {
         NewWeighbridgeScreen(uiState = NewWeighbridgeUiState(), onEvent = { _ -> })
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ErrorPreview() {
+    MyApplicationTheme {
+        NewWeighbridgeScreen(uiState = NewWeighbridgeUiState(
+            errorMessage = "Error Message"
+        ), onEvent = { _ -> })
     }
 }

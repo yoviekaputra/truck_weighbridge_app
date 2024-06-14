@@ -22,7 +22,8 @@ data class NewWeighbridgeUiState(
     val driverName: String = "",
     val inboundWeight: String = "",
     val outboundWeight: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val errorMessage: String = ""
 ) {
 
     val netWeight: String

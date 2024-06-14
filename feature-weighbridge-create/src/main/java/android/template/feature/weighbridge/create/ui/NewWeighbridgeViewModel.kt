@@ -63,14 +63,24 @@ class NewWeighbridgeViewModel @Inject constructor(
                 it.copy(outboundWeight = event.value)
             }
 
-            is NewWeighbridgeUiEvent.OnSaveClicked -> save()
+            is NewWeighbridgeUiEvent.OnSaveClicked -> prepareToSave()
         }
 
     }
 
-    private fun save() = viewModelScope.launch {
+    private fun prepareToSave() = viewModelScope.launch {
         _uiState.update { it.copy(isLoading = true) }
 
+        val result = fieldValidation()
+
+        if (result.isBlank()) {
+            processSave()
+        } else {
+            _uiState.update { it.copy(isLoading = false, errorMessage = result) }
+        }
+    }
+
+    private fun processSave() = viewModelScope.launch {
         val state = _uiState.value
         val newData = WeighbridgeData(
             datetime = state.date,
@@ -86,6 +96,21 @@ class NewWeighbridgeViewModel @Inject constructor(
             _uiEffect.emit(NewWeighbridgeUiEffect.OnSavedSuccess)
         }.onFailure {
             _uiEffect.emit(NewWeighbridgeUiEffect.OnSaveError(message = it.message.orEmpty()))
+        }
+    }
+
+    private fun fieldValidation() = with(_uiState.value) {
+        val message = mutableListOf<String>()
+
+        driverName.ifBlank { message.add("Driver Name") }
+        licenceNumber.ifBlank { message.add("Licence Number") }
+        inboundWeight.ifBlank { message.add("Inbound Weight") }
+        outboundWeight.ifBlank { message.add("Outbound Weight") }
+
+        if (message.isEmpty()) {
+            ""
+        } else {
+            message.joinToString(separator = ", ") + " is required"
         }
     }
 }
