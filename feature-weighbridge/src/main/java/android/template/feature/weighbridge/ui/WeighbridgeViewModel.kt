@@ -93,8 +93,8 @@ class WeighbridgeViewModel @Inject constructor(
                 _filterSortUiState.update { it.copy(sortByDate = it.sortByDate.next()) }
             }
 
-            else -> {
-
+            is WeighbridgeUiEvent.OnEditClick -> {
+                _uiEffect.emit(WeighbridgeUiEffect.OnEditTicket(id = event.data.id))
             }
         }
     }

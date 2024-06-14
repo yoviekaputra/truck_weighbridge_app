@@ -4,5 +4,5 @@ sealed interface WeighbridgeUiEffect {
 
     object OnCreateTicket : WeighbridgeUiEffect
 
-    data class OnEditTicket(val data: WeighbridgeUiModel) : WeighbridgeUiEffect
+    data class OnEditTicket(val id: Int) : WeighbridgeUiEffect
 }

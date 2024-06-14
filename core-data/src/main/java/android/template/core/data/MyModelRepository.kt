@@ -32,6 +32,8 @@ interface MyModelRepository {
 
     suspend fun add(data: WeighbridgeData)
 
+    suspend fun update(data: WeighbridgeData)
+
     suspend fun delete(data: WeighbridgeData)
 }
 
@@ -67,6 +69,10 @@ class DefaultMyModelRepository @Inject constructor(
 
     override suspend fun add(data: WeighbridgeData) {
         myModelDao.insertMyModel(data.asEntity)
+    }
+
+    override suspend fun update(data: WeighbridgeData) {
+        myModelDao.update(item = data.asEntity)
     }
 
     override suspend fun delete(data: WeighbridgeData) {

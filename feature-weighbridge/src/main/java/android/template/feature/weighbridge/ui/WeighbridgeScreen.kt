@@ -64,6 +64,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun WeighbridgeRoute(
     modifier: Modifier = Modifier,
     onCreateTicket: () -> Unit,
+    onEditTicket: (id: Int) -> Unit,
     viewModel: WeighbridgeViewModel = hiltViewModel()
 ) {
 
@@ -76,9 +77,7 @@ fun WeighbridgeRoute(
             viewModel.uiEffect.collectLatest {
                 when (it) {
                     is WeighbridgeUiEffect.OnCreateTicket -> onCreateTicket()
-                    is WeighbridgeUiEffect.OnEditTicket -> {
-
-                    }
+                    is WeighbridgeUiEffect.OnEditTicket -> onEditTicket(it.id)
                 }
             }
         }

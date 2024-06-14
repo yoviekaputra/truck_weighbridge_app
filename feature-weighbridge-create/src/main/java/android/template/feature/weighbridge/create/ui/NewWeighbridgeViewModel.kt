@@ -86,6 +86,7 @@ class NewWeighbridgeViewModel @Inject constructor(
             }
         }
     }
+
     fun onEvent(event: NewWeighbridgeUiEvent) {
         when (event) {
             is NewWeighbridgeUiEvent.OnDateTimeChanged -> _uiState.update {
@@ -127,7 +128,7 @@ class NewWeighbridgeViewModel @Inject constructor(
 
     private fun processSave() = viewModelScope.launch {
         val state = _uiState.value
-        val newData = WeighbridgeData(
+        val data = WeighbridgeData(
             id = state.id,
             datetime = state.date,
             driverName = state.driverName,
@@ -137,12 +138,24 @@ class NewWeighbridgeViewModel @Inject constructor(
         )
 
         runCatching {
-            myModelRepository.add(newData)
+            if (data.id == 0) {
+                save(data = data)
+            } else {
+                edit(data = data)
+            }
         }.onSuccess {
             _uiEffect.emit(NewWeighbridgeUiEffect.OnSavedSuccess)
         }.onFailure { t ->
             _uiState.update { it.copy(isLoading = false, errorMessage = t.message.orEmpty()) }
         }
+    }
+
+    private suspend fun save(data: WeighbridgeData) {
+        myModelRepository.add(data = data)
+    }
+
+    private suspend fun edit(data: WeighbridgeData) {
+        myModelRepository.update(data = data)
     }
 
     private fun fieldValidation() = with(_uiState.value) {

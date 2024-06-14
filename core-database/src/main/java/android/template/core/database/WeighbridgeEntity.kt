@@ -23,6 +23,7 @@ import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Entity(
@@ -80,6 +81,9 @@ interface MyModelDao {
 
     @Insert
     suspend fun insertMyModel(item: WeighbridgeEntity)
+
+    @Update
+    suspend fun update(item: WeighbridgeEntity)
 
     @Delete
     suspend fun delete(item: WeighbridgeEntity)

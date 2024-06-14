@@ -52,6 +52,10 @@ class FakeMyModelRepository @Inject constructor() : MyModelRepository {
         throw NotImplementedError()
     }
 
+    override suspend fun update(data: WeighbridgeData) {
+        throw NotImplementedError()
+    }
+
     override suspend fun delete(data: WeighbridgeData) {
         throw NotImplementedError()
     }
