@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package android.template.feature.weighbridge.ui.mymodel
+package android.template.feature.weighbridge.ui
 
 
-import android.template.core.data.MyModelRepository
-import android.template.feature.weighbridge.ui.WeighbridgeViewModel
+import android.template.core.data.di.FakeWeighbridgeRepository
 import android.template.feature.weighbridge.ui.models.SearchResultUiState
+import android.template.feature.weighbridge.ui.models.WeighbridgeFilterSort
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -33,29 +31,23 @@ import org.junit.Test
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-@OptIn(ExperimentalCoroutinesApi::class) // TODO: Remove when stable
+@OptIn(ExperimentalCoroutinesApi::class)
 class WeighbridgeViewModelTest {
+
     @Test
     fun uiState_initiallyLoading() = runTest {
-        val viewModel = WeighbridgeViewModel(FakeMyModelRepository())
+        val viewModel = WeighbridgeViewModel(FakeWeighbridgeRepository())
         assertEquals(viewModel.searchResultUiState.first(), SearchResultUiState.Loading)
+        assertEquals(viewModel.uiEffect.first(), SearchResultUiState.Loading)
+        assertEquals(viewModel.filterSortUiState.first().query, "")
+        assertEquals(viewModel.filterSortUiState.first().sortByDate, WeighbridgeFilterSort.DEFAULT)
     }
 
     @Test
     fun uiState_onItemSaved_isDisplayed() = runTest {
-        val viewModel = WeighbridgeViewModel(FakeMyModelRepository())
+        val viewModel = WeighbridgeViewModel(FakeWeighbridgeRepository())
+
         assertEquals(viewModel.searchResultUiState.first(), SearchResultUiState.Loading)
     }
 }
 
-private class FakeMyModelRepository : MyModelRepository {
-
-    private val data = mutableListOf<String>()
-
-    override val myModels: Flow<List<String>>
-        get() = flow { emit(data.toList()) }
-
-    override suspend fun add(name: String) {
-        data.add(0, name)
-    }
-}

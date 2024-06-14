@@ -16,13 +16,13 @@
 
 package android.template.test.app.testdi
 
+import android.template.core.data.WeighbridgeRepository
+import android.template.core.data.di.DataModule
+import android.template.core.data.di.FakeWeighbridgeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import android.template.core.data.MyModelRepository
-import android.template.core.data.di.DataModule
-import android.template.core.data.di.FakeMyModelRepository
 
 @Module
 @TestInstallIn(
@@ -33,6 +33,6 @@ interface FakeDataModule {
 
     @Binds
     abstract fun bindRepository(
-        fakeRepository: FakeMyModelRepository
-    ): MyModelRepository
+        fakeRepository: FakeWeighbridgeRepository
+    ): WeighbridgeRepository
 }

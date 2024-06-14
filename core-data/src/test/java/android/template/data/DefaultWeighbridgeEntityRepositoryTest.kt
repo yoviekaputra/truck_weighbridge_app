@@ -16,7 +16,7 @@
 
 package android.template.data
 
-import android.template.core.data.DefaultMyModelRepository
+import android.template.core.data.DefaultWeighbridgeRepository
 import android.template.core.data.models.WeighbridgeData
 import android.template.core.database.MyModelDao
 import android.template.core.database.WeighbridgeEntity
@@ -29,14 +29,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Unit tests for [DefaultMyModelRepository].
+ * Unit tests for [DefaultWeighbridgeRepository].
  */
 @OptIn(ExperimentalCoroutinesApi::class) // TODO: Remove when stable
 class DefaultWeighbridgeEntityRepositoryTest {
 
     @Test
     fun myModels_newItemSaved_itemIsReturned() = runTest {
-        val repository = DefaultMyModelRepository(FakeMyModelDao())
+        val repository = DefaultWeighbridgeRepository(FakeMyModelDao())
         val data = WeighbridgeData(
             datetime = 1718196095,
             licenceNumber = "B123SU",

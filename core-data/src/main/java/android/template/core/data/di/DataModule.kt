@@ -16,8 +16,8 @@
 
 package android.template.core.data.di
 
-import android.template.core.data.DefaultMyModelRepository
-import android.template.core.data.MyModelRepository
+import android.template.core.data.DefaultWeighbridgeRepository
+import android.template.core.data.WeighbridgeRepository
 import android.template.core.data.models.WeighbridgeData
 import dagger.Binds
 import dagger.Module
@@ -35,13 +35,13 @@ interface DataModule {
     @Singleton
     @Binds
     fun bindsMyModelRepository(
-        myModelRepository: DefaultMyModelRepository
-    ): MyModelRepository
+        myModelRepository: DefaultWeighbridgeRepository
+    ): WeighbridgeRepository
 }
 
-class FakeMyModelRepository @Inject constructor() : MyModelRepository {
+class FakeWeighbridgeRepository @Inject constructor() : WeighbridgeRepository {
     override fun get(id: Int): Flow<WeighbridgeData> {
-        throw NotImplementedError()
+        return flowOf(fakeMyModels.find { it.id == id }!!)
     }
 
     override fun get(query: String, sortByAscending: Boolean): Flow<List<WeighbridgeData>> {
@@ -49,7 +49,7 @@ class FakeMyModelRepository @Inject constructor() : MyModelRepository {
     }
 
     override suspend fun add(data: WeighbridgeData) {
-        throw NotImplementedError()
+
     }
 
     override suspend fun update(data: WeighbridgeData) {
@@ -61,8 +61,9 @@ class FakeMyModelRepository @Inject constructor() : MyModelRepository {
     }
 }
 
-val fakeMyModels = (0..3).map {
+val fakeMyModels = (0..5).map {
     WeighbridgeData(
+        id = it,
         datetime = System.currentTimeMillis() + it,
         driverName = "Driver $it",
         licenceNumber = "BA $it",

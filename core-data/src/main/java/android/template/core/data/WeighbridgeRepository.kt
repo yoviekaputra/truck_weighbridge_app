@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-interface MyModelRepository {
+interface WeighbridgeRepository {
 
     fun get(id: Int): Flow<WeighbridgeData>
 
@@ -37,9 +37,9 @@ interface MyModelRepository {
     suspend fun delete(data: WeighbridgeData)
 }
 
-class DefaultMyModelRepository @Inject constructor(
+class DefaultWeighbridgeRepository @Inject constructor(
     private val myModelDao: MyModelDao
-) : MyModelRepository {
+) : WeighbridgeRepository {
     override fun get(id: Int): Flow<WeighbridgeData> {
         return myModelDao.get(id = id).map { it.asData }
     }

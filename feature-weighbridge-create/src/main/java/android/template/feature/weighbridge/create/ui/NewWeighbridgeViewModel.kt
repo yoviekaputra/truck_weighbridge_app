@@ -16,7 +16,7 @@
 
 package android.template.feature.weighbridge.create.ui
 
-import android.template.core.data.MyModelRepository
+import android.template.core.data.WeighbridgeRepository
 import android.template.core.data.models.WeighbridgeData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -39,14 +39,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewWeighbridgeViewModel @Inject constructor(
-    private val myModelRepository: MyModelRepository,
+    private val weighbridgeRepository: WeighbridgeRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val editedTicket = savedStateHandle.getStateFlow("id", 0)
         .filter { it != 0 }
-        .flatMapLatest { myModelRepository.get(id = it) }
+        .flatMapLatest { weighbridgeRepository.get(id = it) }
         .map<WeighbridgeData, EditedTicketUiState> { EditedTicketUiState.Success(it) }
         .catch { emit(EditedTicketUiState.Error("Data not found")) }
 
@@ -151,11 +151,11 @@ class NewWeighbridgeViewModel @Inject constructor(
     }
 
     private suspend fun save(data: WeighbridgeData) {
-        myModelRepository.add(data = data)
+        weighbridgeRepository.add(data = data)
     }
 
     private suspend fun edit(data: WeighbridgeData) {
-        myModelRepository.update(data = data)
+        weighbridgeRepository.update(data = data)
     }
 
     private fun fieldValidation() = with(_uiState.value) {

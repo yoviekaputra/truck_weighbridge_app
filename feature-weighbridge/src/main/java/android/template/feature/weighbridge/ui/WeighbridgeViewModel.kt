@@ -16,7 +16,7 @@
 
 package android.template.feature.weighbridge.ui
 
-import android.template.core.data.MyModelRepository
+import android.template.core.data.WeighbridgeRepository
 import android.template.core.data.models.WeighbridgeData
 import android.template.feature.weighbridge.ui.models.SearchResultUiState
 import android.template.feature.weighbridge.ui.models.SearchResultUiState.Error
@@ -52,7 +52,7 @@ import javax.inject.Inject
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class WeighbridgeViewModel @Inject constructor(
-    private val myModelRepository: MyModelRepository
+    private val weighbridgeRepository: WeighbridgeRepository
 ) : ViewModel() {
 
     private val _filterSortUiState = MutableStateFlow(WeighbridgeFilterSortUiModel())
@@ -62,7 +62,7 @@ class WeighbridgeViewModel @Inject constructor(
     val searchResultUiState: StateFlow<SearchResultUiState> = _filterSortUiState
         .debounce { if (it.query.isEmpty()) 0 else 500 }
         .flatMapLatest {
-            myModelRepository.get(
+            weighbridgeRepository.get(
                 query = _filterSortUiState.value.query,
                 sortByAscending = _filterSortUiState.value.sortByDate == WeighbridgeFilterSort.DEFAULT
             )
@@ -82,7 +82,7 @@ class WeighbridgeViewModel @Inject constructor(
             }
 
             is WeighbridgeUiEvent.OnDeleteClick -> {
-                myModelRepository.delete(data = event.data.asData)
+                weighbridgeRepository.delete(data = event.data.asData)
             }
 
             is WeighbridgeUiEvent.OnSearchChanged -> {
